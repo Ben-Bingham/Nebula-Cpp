@@ -1,3 +1,7 @@
+require "Dependencies/Gemstone/Lazuli/premake5"
+require "Dependencies/Gemstone/Malachite/premake5"
+require "Dependencies/Gemstone/Ruby/premake5"
+
 workspace "Nebula"
 	configurations {"Debug", "Release"}
 	platforms {"x64"}
@@ -25,25 +29,15 @@ workspace "Nebula"
 		}
 		optimize "On"
 	filter {}
+	
+	defines { "RUBY_ASSETS=\"..\\\\Dependencies\\\\Gemstone\\\\Ruby\\\\assets\"" }
 
-	include "Nebula"
+	group "Nebula"
+		include "Nebula"
+	group ""
 	
 	group "Gemstone"
-		-- include "Dependencies/Gemstone/Malachite"
-		-- include "Dependencies/Gemstone/Lazuli"
-		-- include "Dependencies/Gemstone/Ruby"
-		externalproject "Lazuli"
-   			location "Dependencies/Gemstone/Lazuli"
-  			uuid "B64347C0-A2E5-7196-8BA0-85EA77E1F8E6"
-   			kind "StaticLib"
-
-		externalproject "Malachite"
-   			location "Dependencies/Gemstone/Malachite"
-  			uuid "ED868CE3-59F1-405A-A22F-F2FF0ED91EAF"
-   			kind "StaticLib"
-
-		externalproject "Ruby"
-   			location "Dependencies/Gemstone/Ruby"
-  			uuid "67058C7C-533C-8D0D-FC28-7310E83E090F"
-   			kind "StaticLib"
+		project_Lazuli("Dependencies/Gemstone/")
+		project_Malachite("Dependencies/Gemstone/")
+		project_Ruby("Dependencies/Gemstone/")
 	group ""
