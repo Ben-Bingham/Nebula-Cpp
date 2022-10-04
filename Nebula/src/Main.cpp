@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "Renderer.h"
 #include "Renderable Objects/Phong/PhongCube.h"
+#include "TextFile.h"
 
 Ruby::Camera camera{ Malachite::Vector3f{0.0f, 0.0f, 3.0f } };
 struct FPSController {
@@ -112,6 +113,12 @@ int main() {
 
 	Ruby::Renderer renderer{ };
 
+	Ruby::VertexShader phongInstanceVertexShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.vert" } };
+	Ruby::FragmentShader phongInstanceFragmentShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.frag" } };
+	Ruby::ShaderProgram phongInstanceProgram{ phongInstanceVertexShader, phongInstanceFragmentShader, std::vector<Ruby::Attribute>{ 3, 3, 2 } };
+
+	renderer.addShader(phongInstanceProgram);
+
 	Ruby::Image containerImage{ "assets\\images\\container.png" };
 	Ruby::Image containerSpecularImage{ "assets\\images\\container_specular.png" };
 
@@ -119,6 +126,7 @@ int main() {
 	Ruby::Texture specularTexture{ containerSpecularImage };
 
 	Ruby::PhongMaterial cubeMaterial{ diffuseTexture, specularTexture };
+	Ruby::PhongCube cube{ cubeMaterial };
 
 	//Chunk testChunk;
 
@@ -136,6 +144,9 @@ int main() {
 	directionalLights.push_back(&dirLight);
 
 	renderer.shaders.phongShader.use();
+	Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
+
+	phongInstanceProgram.use();
 	Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
 
 	renderer.init(window.getProjectionMatrix());
@@ -185,9 +196,15 @@ int main() {
 				// Cube
 				Ruby::ShaderProgram::upload("cameraPosition", camera.position);
 
-				renderer.phongRender(cube);
-
 				renderer.phongRenderingEnd();
+			}
+
+			{ // Phong instance
+				phongInstanceProgram.use();
+
+				Ruby::ShaderProgram::upload("cameraPosition", camera.position);
+
+				renderer.phongRender(cube);
 			}
 
 			renderer.end();
@@ -207,5 +224,5 @@ int main() {
 	LOG("Average delta time: " + std::to_string(averageTime / frameCount));
 	LOG("Average FPS: " + std::to_string(1.0f / (averageTime / frameCount)));
 
-	std::cin.get();
+	//std::cin.get();
 }
