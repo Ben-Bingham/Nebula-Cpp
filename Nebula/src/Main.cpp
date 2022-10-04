@@ -49,6 +49,58 @@ void mousePositionCallback(int xpos, int ypos, void* data) {
 	camera.updateCameraVectors();
 }
 
+//const unsigned int xSize{ 16 };
+//const unsigned int ySize{ 256 };
+//const unsigned int zSize{ 16 };
+//
+//using Chunk = unsigned char[xSize][ySize][zSize];
+//
+//const std::vector<unsigned int> indices{
+//		0, 1, 2,
+//		1, 3, 2,
+//		4, 5, 6,
+//		5, 7, 6,
+//		8, 9, 10,
+//		9, 11, 10,
+//		12, 13, 14,
+//		13, 15, 14,
+//		16, 17, 18,
+//		17, 19, 18,
+//		20, 21, 22,
+//		21, 23, 22,
+//};
+//
+//const std::vector<float> verticies{
+//	-0.5f, -0.5f,  0.5f,   0.0f,  0.0f,  1.0f, 0.0f, 0.0f,
+//	-0.5f,  0.5f,  0.5f,   0.0f,  0.0f,  1.0f, 0.0f, 1.0f,
+//	 0.5f, -0.5f,  0.5f,   0.0f,  0.0f,  1.0f, 1.0f, 0.0f,
+//	 0.5f,  0.5f,  0.5f,   0.0f,  0.0f,  1.0f, 1.0f, 1.0f,
+//
+//	 0.5f, -0.5f,  0.5f,   1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+//	 0.5f,  0.5f,  0.5f,   1.0f,  0.0f,  0.0f, 0.0f, 1.0f,
+//	 0.5f, -0.5f, -0.5f,   1.0f,  0.0f,  0.0f, 1.0f, 0.0f,
+//	 0.5f,  0.5f, -0.5f,   1.0f,  0.0f,  0.0f, 1.0f, 1.0f,
+//
+//	-0.5f, -0.5f, -0.5f,  -1.0f,  0.0f,  0.0, 0.0f, 0.0,
+//	-0.5f,  0.5f, -0.5f,  -1.0f,  0.0f,  0.0, 0.0f, 1.0,
+//	-0.5f, -0.5f,  0.5f,  -1.0f,  0.0f,  0.0, 1.0f, 0.0,
+//	-0.5f,  0.5f,  0.5f,  -1.0f,  0.0f,  0.0, 1.0f, 1.0,
+//
+//	-0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f, 0.0f, 0.0f,
+//	-0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f, 0.0f, 1.0f,
+//	 0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f, 1.0f, 0.0f,
+//	 0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f, 1.0f, 1.0f,
+//
+//	 0.5f, -0.5f, -0.5f,   0.0f,  0.0f,  -1.0f, 0.0f, 0.0f,
+//	 0.5f,  0.5f, -0.5f,   0.0f,  0.0f,  -1.0f, 0.0f, 1.0f,
+//	-0.5f, -0.5f, -0.5f,   0.0f,  0.0f,  -1.0f, 1.0f, 0.0f,
+//	-0.5f,  0.5f, -0.5f,   0.0f,  0.0f,  -1.0f, 1.0f, 1.0f,
+//
+//	-0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f, 0.0f, 0.0f,
+//	-0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f, 0.0f, 1.0f,
+//	 0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+//	 0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f, 1.0f, 1.0f
+//};
 
 int main() {
 	Ruby::Window window{ };
@@ -60,13 +112,24 @@ int main() {
 
 	Ruby::Renderer renderer{ };
 
-	Ruby::Image red{ Malachite::Vector3f{ 1.0f, 0.0f, 0.0f } };
+	Ruby::Image containerImage{ "assets\\images\\container.png" };
+	Ruby::Image containerSpecularImage{ "assets\\images\\container_specular.png" };
 
-	Ruby::Texture diffuseTexture{ red };
-	Ruby::Texture specularTexture{ red };
+	Ruby::Texture diffuseTexture{ containerImage };
+	Ruby::Texture specularTexture{ containerSpecularImage };
 
 	Ruby::PhongMaterial cubeMaterial{ diffuseTexture, specularTexture };
-	Ruby::PhongCube cube{ cubeMaterial };
+
+	//Chunk testChunk;
+
+	// World Generation
+	/*for (size_t x = 0; x < xSize; x++) {
+		for (size_t y = 0; y < ySize; y++) {
+			for (size_t z = 0; z < zSize; z++) {
+				testChunk[x][y][z] = 1;
+			}
+		}
+	}*/
 
 	Ruby::DirectionalLight dirLight{};
 	std::vector<Ruby::DirectionalLight*> directionalLights{};
@@ -77,7 +140,11 @@ int main() {
 
 	renderer.init(window.getProjectionMatrix());
 
-	while (window.isOpen()) {
+	double previousTime = glfwGetTime();
+	unsigned long long frameCount{ 0 };
+	double averageTime{ 0 };
+
+	while (window.isOpen()/* && frameCount < 100*/) {
 		window.pollEvents();
 		float velocity = 0.05f;
 
@@ -109,25 +176,36 @@ int main() {
 			window.close();
 		}
 
-		LOG(std::to_string(mouse->xPosition));
 		{ // Rendering
 			renderer.prep(camera.getViewMatrix());
+
 			{ // Normal Rendering
 				renderer.phongRenderingPrep();
 
 				// Cube
 				Ruby::ShaderProgram::upload("cameraPosition", camera.position);
 
-				cube.model = Malachite::Matrix4f{ 1.0f };
-				cube.model.rotate(Malachite::degreesToRadians(90.0f), Malachite::Vector3f((float)sin(glfwGetTime()), 1.0f, 0.0f));
-
 				renderer.phongRender(cube);
 
 				renderer.phongRenderingEnd();
 			}
+
 			renderer.end();
 		}
 
 		window.swapBuffers();
+
+		double currentTime = glfwGetTime();
+		double deltaTime = currentTime - previousTime;
+		LOG(std::to_string(1.0f / deltaTime));
+		previousTime = currentTime;
+		frameCount++;
+		averageTime += deltaTime;
 	}
+
+	LOG("Number of frames: " + std::to_string(frameCount));
+	LOG("Average delta time: " + std::to_string(averageTime / frameCount));
+	LOG("Average FPS: " + std::to_string(1.0f / (averageTime / frameCount)));
+
+	std::cin.get();
 }
