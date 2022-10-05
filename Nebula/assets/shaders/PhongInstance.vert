@@ -12,12 +12,20 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+uniform sampler2D offsetTexture;
+
 void main() {
+	ivec2 texSize = textureSize(offsetTexture, 0);
+	int pixelX = gl_InstanceID % texSize.x;
+	int pixelY = gl_InstanceID / texSize.x;
+
+	vec3 offset = texture(offsetTexture, ivec2(pixelX, pixelY)).rgb;
+
 	normal = normalize(transpose(inverse(mat3(model))) * inputNormal);
 
-	fragmentPosition = vec3(model * vec4(inputPositon, 1.0));
+	fragmentPosition = vec3(model * vec4(inputPositon + offset, 1.0));
 
 	textureCordinates = inputTextureCords;
 
-	gl_Position = projection * view * model * vec4(inputPositon, 1.0);
+	gl_Position = projection * view * model * vec4(inputPositon + offset, 1.0);
 }

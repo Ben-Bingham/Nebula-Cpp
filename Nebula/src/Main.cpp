@@ -50,9 +50,9 @@ void mousePositionCallback(int xpos, int ypos, void* data) {
 	camera.updateCameraVectors();
 }
 
-//const unsigned int xSize{ 16 };
-//const unsigned int ySize{ 256 };
-//const unsigned int zSize{ 16 };
+const unsigned int xSize{ 16 };
+const unsigned int ySize{ 256 };
+const unsigned int zSize{ 16 };
 //
 //using Chunk = unsigned char[xSize][ySize][zSize];
 //
@@ -128,6 +128,23 @@ int main() {
 	Ruby::PhongMaterial cubeMaterial{ diffuseTexture, specularTexture };
 	Ruby::PhongCube cube{ cubeMaterial };
 
+	std::vector<unsigned char> content{};
+
+	content.resize(xSize * ySize * zSize * 3);
+
+	for (size_t x = 0; x < xSize; x++) {
+		for (size_t y = 0; y < ySize; y++) {
+			for (size_t z = 0; z < zSize; z++) {
+				content.push_back(static_cast<unsigned int>(x));
+				content.push_back(static_cast<unsigned int>(y));
+				content.push_back(static_cast<unsigned int>(z));
+			}
+		}
+	}
+
+	Ruby::Image offsetImage(content, 256, 256, 3);
+	Ruby::Texture offsetTexture(offsetImage);
+
 	//Chunk testChunk;
 
 	// World Generation
@@ -148,6 +165,7 @@ int main() {
 
 	phongInstanceProgram.use();
 	Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
+	Ruby::ShaderProgram::upload("offsetTexture", 5, offsetTexture);
 
 	renderer.init(window.getProjectionMatrix());
 
@@ -203,6 +221,8 @@ int main() {
 				phongInstanceProgram.use();
 
 				Ruby::ShaderProgram::upload("cameraPosition", camera.position);
+
+				cube.render();
 
 				renderer.phongRender(cube);
 			}
