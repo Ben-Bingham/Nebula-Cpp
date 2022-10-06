@@ -116,8 +116,9 @@ int main() {
 	Ruby::Renderer renderer{ };
 
 	Ruby::VertexShader phongInstanceVertexShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.vert" } };
+	Ruby::GeometryShader phongInstanceGeometryShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.geom" } };
 	Ruby::FragmentShader phongInstanceFragmentShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.frag" } };
-	Ruby::ShaderProgram phongInstanceProgram{ phongInstanceVertexShader, phongInstanceFragmentShader, std::vector<Ruby::Attribute>{ 3, 3, 2 } };
+	Ruby::ShaderProgram phongInstanceProgram{ phongInstanceVertexShader, phongInstanceGeometryShader, phongInstanceFragmentShader, std::vector<Ruby::Attribute>{ 3, 3, 2 } };
 
 	renderer.addShader(phongInstanceProgram);
 
@@ -128,7 +129,7 @@ int main() {
 	Ruby::Texture specularTexture{ containerSpecularImage };
 
 	Ruby::PhongMaterial cubeMaterial{ diffuseTexture, specularTexture };
-	Nebula::PhongInstanceRenderable cube{ verticies, indices, cubeMaterial };
+	Nebula::PhongInstanceRenderable cube{ std::vector<float>{ 0.0f, 0.0f, 0.0f }, std::vector<unsigned int>{ 0 }, cubeMaterial};
 
 	std::vector<unsigned char> content{};
 
@@ -232,8 +233,8 @@ int main() {
 				Ruby::ShaderProgram::upload("cameraPosition", camera.position);
 
 
-				for (unsigned int x = 0; x < 10; x++) {
-					for (unsigned int y = 0; y < 10; y++) {
+				for (unsigned int x = 0; x < 5; x++) {
+					for (unsigned int y = 0; y < 5; y++) {
 						cube.model.translate(x * 16, 0, y * 16);
 						cube.render();
 						cube.model = Malachite::Matrix4f{ 1.0f };
