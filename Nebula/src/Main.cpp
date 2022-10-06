@@ -116,9 +116,8 @@ int main() {
 	Ruby::Renderer renderer{ };
 
 	Ruby::VertexShader phongInstanceVertexShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.vert" } };
-	Ruby::GeometryShader phongInstanceGeometryShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.geom" } };
 	Ruby::FragmentShader phongInstanceFragmentShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.frag" } };
-	Ruby::ShaderProgram phongInstanceProgram{ phongInstanceVertexShader, phongInstanceGeometryShader, phongInstanceFragmentShader, std::vector<Ruby::Attribute>{ 3, 3, 2 } };
+	Ruby::ShaderProgram phongInstanceProgram{ phongInstanceVertexShader, phongInstanceFragmentShader, std::vector<Ruby::Attribute>{ 3, 3, 2 } };
 
 	renderer.addShader(phongInstanceProgram);
 
@@ -129,7 +128,7 @@ int main() {
 	Ruby::Texture specularTexture{ containerSpecularImage };
 
 	Ruby::PhongMaterial cubeMaterial{ diffuseTexture, specularTexture };
-	Nebula::PhongInstanceRenderable cube{ std::vector<float>{ 0.0f, 0.0f, 0.0f }, std::vector<unsigned int>{ 0 }, cubeMaterial};
+	Nebula::PhongInstanceRenderable cube{ verticies, indices, cubeMaterial};
 
 	std::vector<unsigned char> content{};
 
@@ -183,7 +182,7 @@ int main() {
 	unsigned long long frameCount{ 0 };
 	double averageTime{ 0 };
 
-	while (window.isOpen() && frameCount < 100) {
+	while (window.isOpen()/* && frameCount < 100*/) {
 		window.pollEvents();
 		float velocity = 0.1f;
 
@@ -259,5 +258,5 @@ int main() {
 	LOG("Average delta time: " + std::to_string(averageTime / frameCount));
 	LOG("Average FPS: " + std::to_string(1.0f / (averageTime / frameCount)));
 
-	std::cin.get();
+	//std::cin.get();
 }

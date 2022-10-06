@@ -15,7 +15,7 @@ namespace Nebula {
 			VAO.bind();
 			Ruby::ShaderProgram::upload("model", model);
 			Ruby::ShaderProgram::upload("material", 0, *material);
-			glDrawElementsInstanced(GL_POINTS, numberOfIndicies, GL_UNSIGNED_INT, 0, (16 * 256 * 16));
+			glDrawElementsInstanced(GL_TRIANGLES, numberOfIndicies, GL_UNSIGNED_INT, 0, (16 * 256 * 16));
 		}
 	};
 }
