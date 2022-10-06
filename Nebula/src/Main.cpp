@@ -144,9 +144,9 @@ int main() {
 	for (size_t x = 0; x < xSize; x++) {
 		for (size_t y = 0; y < ySize; y++) {
 			for (size_t z = 0; z < zSize; z++) {
-				content.push_back(static_cast<unsigned int>(x) / 255u);
-				content.push_back(static_cast<unsigned int>(y) / 255u);
-				content.push_back(static_cast<unsigned int>(z) / 255u);
+				content.push_back(static_cast<unsigned int>(x));
+				content.push_back(static_cast<unsigned int>(y));
+				content.push_back(static_cast<unsigned int>(z));
 			}
 		}
 	}
@@ -182,9 +182,9 @@ int main() {
 	unsigned long long frameCount{ 0 };
 	double averageTime{ 0 };
 
-	while (window.isOpen()/* && frameCount < 100*/) {
+	while (window.isOpen() && frameCount < 100) {
 		window.pollEvents();
-		float velocity = 0.05f;
+		float velocity = 0.1f;
 
 		if (keyboard->KEY_W) {
 			camera.position += camera.front * velocity;
@@ -231,7 +231,14 @@ int main() {
 
 				Ruby::ShaderProgram::upload("cameraPosition", camera.position);
 
-				cube.render();
+
+				for (unsigned int x = 0; x < 10; x++) {
+					for (unsigned int y = 0; y < 10; y++) {
+						cube.model.translate(x * 16, 0, y * 16);
+						cube.render();
+						cube.model = Malachite::Matrix4f{ 1.0f };
+					}
+				}
 			}
 
 			renderer.end();
@@ -251,5 +258,5 @@ int main() {
 	LOG("Average delta time: " + std::to_string(averageTime / frameCount));
 	LOG("Average FPS: " + std::to_string(1.0f / (averageTime / frameCount)));
 
-	//std::cin.get();
+	std::cin.get();
 }

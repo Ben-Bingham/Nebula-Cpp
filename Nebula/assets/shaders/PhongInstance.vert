@@ -14,20 +14,8 @@ uniform mat4 projection;
 
 uniform sampler2D offsetTexture;
 
-out vec3 test;
-
 void main() {
-	ivec2 texSize = textureSize(offsetTexture, 0);
-	int pixelX = gl_InstanceID % texSize.x;
-	int pixelY = gl_InstanceID / texSize.x;
-
-	vec3 offset = texture(offsetTexture, ivec2(pixelX, pixelY)).rgb;
-
-	//offset.x = offset.x * 16;
-	//offset.y = offset.y * 256;
-	//offset.z = offset.z * 16;
-
-	test = offset;
+	vec3 offset = vec3(gl_InstanceID % 16, (gl_InstanceID / 16) % 256, gl_InstanceID / (16 * 256));
 
 	normal = normalize(transpose(inverse(mat3(model))) * inputNormal);
 
