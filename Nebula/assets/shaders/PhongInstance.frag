@@ -48,6 +48,8 @@ uniform vec3 cameraPosition;
 vec3 calcPointLight(PointLight, vec3);
 vec3 calcDirectionalLight(DirectionalLight, vec3);
 
+in vec3 test;
+
 void main() {
 	vec3 viewDirection = normalize(cameraPosition - fragmentPosition);
 
@@ -61,7 +63,8 @@ void main() {
 		result += calcDirectionalLight(directionalLights[i], viewDirection);
 	}
 
-	FragColor = vec4(result, 1.0);
+	//FragColor = vec4(result, 1.0);
+	FragColor = vec4(test, 1.0);
 }
 
 vec3 calcPointLight(PointLight pointLight, vec3 viewDirection) {

@@ -14,6 +14,8 @@ uniform mat4 projection;
 
 uniform sampler2D offsetTexture;
 
+out vec3 test;
+
 void main() {
 	vec3 offset = vec3(gl_InstanceID % 16, (gl_InstanceID / 16) % 256, gl_InstanceID / (16 * 256));
 
@@ -22,6 +24,8 @@ void main() {
 	fragmentPosition = vec3(model * vec4(inputPositon + offset, 1.0));
 
 	textureCordinates = inputTextureCords;
+
+	test = offset;
 
 	gl_Position = projection * view * model * vec4(inputPositon + offset, 1.0);
 }
