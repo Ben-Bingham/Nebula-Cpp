@@ -5,6 +5,8 @@
 #include "Renderable Objects/Phong/PhongCube.h"
 #include "TextFile.h"
 
+#include "OpenGL objects/BufferTexture.h"
+
 #include "PhongInstanceRenderable.h"
 
 Ruby::Camera camera{ Malachite::Vector3f{0.0f, 0.0f, 3.0f } };
@@ -130,40 +132,111 @@ int main() {
 	Ruby::PhongMaterial cubeMaterial{ diffuseTexture, specularTexture };
 	Nebula::PhongInstanceRenderable cube{ verticies, indices, cubeMaterial};
 
-	std::vector<unsigned char> content{};
+	unsigned char chunk[16][256][16];
+	unsigned int blocksToRender{ 0 };
 
-	/*content.resize(256 * 256 * 3);
-
-	for (unsigned int i = 0; i < 256 * 256 * sizeof(unsigned char); i += 3) {
-		content[i + 0u] = 1u;
-		content[i + 1u] = 2u;
-		content[i + 2u] = 3u;
+	/*for (size_t x = 0; x < xSize; x++) {
+		for (size_t y = 0; y < ySize; y++) {
+			for (size_t z = 0; z < zSize; z++) {
+				if ((x != xSize && x != 0) && (y != ySize && y != 0) && (z != zSize && z != 0)) {
+					chunk[x][y][z] = 0;
+				}
+				else {
+					chunk[x][y][z] = 1;
+				}
+			}
+		}
 	}*/
-
 
 	for (size_t x = 0; x < xSize; x++) {
 		for (size_t y = 0; y < ySize; y++) {
 			for (size_t z = 0; z < zSize; z++) {
-				content.push_back(static_cast<unsigned int>(x));
-				content.push_back(static_cast<unsigned int>(y));
-				content.push_back(static_cast<unsigned int>(z));
+				chunk[x][y][z] = 1;
 			}
 		}
 	}
 
-	Ruby::Image offsetImage(content, 256, 256, 3);
-	Ruby::Texture offsetTexture(offsetImage);
 
-	//Chunk testChunk;
+	std::vector<float> content{};
+	for (unsigned int x = 0; x < xSize; x++) {
+		for (unsigned int y = 0; y < ySize; y++) {
+			for (unsigned int z = 0; z < zSize; z++) {
+				unsigned char block = chunk[x][y][z];
+				unsigned char posXBlock{ 0 };
+				unsigned char negXBlock{ 0 };
+				unsigned char posYBlock{ 0 };
+				unsigned char negYBlock{ 0 };
+				unsigned char posZBlock{ 0 };
+				unsigned char negZBlock{ 0 };
 
-	// World Generation
-	/*for (size_t x = 0; x < xSize; x++) {
-		for (size_t y = 0; y < ySize; y++) {
-			for (size_t z = 0; z < zSize; z++) {
-				testChunk[x][y][z] = 1;
+				if (block != 0) { 
+					if (x <= 14) {
+						posXBlock = chunk[x + 1][y][z];
+					}
+					if (x >= 1) {
+						negXBlock = chunk[x - 1][y][z];
+					}
+
+					if (y <= 254) {
+						posYBlock = chunk[x][y + 1][z];
+					}
+					if (y >= 1) {
+						negYBlock = chunk[x][y - 1][z];
+					}
+
+					if (z <= 14) {
+						posZBlock = chunk[x][y][z + 1];
+					}
+					if (z >= 1) {
+						negZBlock = chunk[x][y][z - 1];
+					}
+
+					if (posXBlock == 0 || negXBlock == 0 || posYBlock == 0 || negYBlock == 0 || posZBlock == 0 || negZBlock == 0) {
+						content.push_back(static_cast<float>(x));
+						content.push_back(static_cast<float>(y));
+						content.push_back(static_cast<float>(z));
+						blocksToRender++;
+					}
+				}
+
+				/*if (block == 0) { continue; }
+
+				if (x != 16 && x != 0 && y != 256 && y != 0 && z != 16 && z != 0) {
+					unsigned char posXBlock = chunk[x + 1][y][z];
+					unsigned char negXBlock = chunk[x - 1][y][z];
+					unsigned char posYBlock = chunk[x][y + 1][z];
+					unsigned char negYBlock = chunk[x][y - 1][z];
+					unsigned char posZBlock = chunk[x][y][z + 1];
+					unsigned char negZBlock = chunk[x][y][z - 1];
+
+					if (posXBlock != 0 && negXBlock != 0 && posYBlock != 0 && negYBlock != 0 && posZBlock != 0 && negZBlock != 0) {
+						continue;
+					}
+
+					content.push_back(static_cast<float>(x));
+					content.push_back(static_cast<float>(y));
+					content.push_back(static_cast<float>(z));
+					blocksToRender++;
+					continue;
+				}
+				content.push_back(static_cast<float>(x));
+				content.push_back(static_cast<float>(y));
+				content.push_back(static_cast<float>(z));
+				blocksToRender++;*/
 			}
 		}
-	}*/
+	}
+
+	Ruby::VertexAttributeObject::unbind();
+
+	Ruby::VertexBufferObject textureBufferVBO{};
+	textureBufferVBO.bind();
+	textureBufferVBO.setData(content);
+	textureBufferVBO.unbind();
+
+	Ruby::VertexAttributeObject::unbind();
+
+	Ruby::BufferTexture bufferTexture{ textureBufferVBO, GL_RGB32F };
 
 	Ruby::DirectionalLight dirLight{};
 	std::vector<Ruby::DirectionalLight*> directionalLights{};
@@ -174,7 +247,7 @@ int main() {
 
 	phongInstanceProgram.use();
 	Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
-	Ruby::ShaderProgram::upload("offsetTexture", 5, offsetTexture);
+	Ruby::ShaderProgram::upload("offsetBuffer", 5, bufferTexture);
 
 	renderer.init(window.getProjectionMatrix());
 
@@ -182,7 +255,9 @@ int main() {
 	unsigned long long frameCount{ 0 };
 	double averageTime{ 0 };
 
-	while (window.isOpen()/* && frameCount < 100*/) {
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	while (window.isOpen() /*&& frameCount < 100*/) {
 		window.pollEvents();
 		float velocity = 0.1f;
 
@@ -231,11 +306,10 @@ int main() {
 
 				Ruby::ShaderProgram::upload("cameraPosition", camera.position);
 
-
 				for (unsigned int x = 0; x < 5; x++) {
 					for (unsigned int y = 0; y < 5; y++) {
 						cube.model.translate(x * 16, 0, y * 16);
-						cube.render();
+						cube.render(blocksToRender);
 						cube.model = Malachite::Matrix4f{ 1.0f };
 					}
 				}

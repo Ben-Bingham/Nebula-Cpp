@@ -12,12 +12,12 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-uniform sampler2D offsetTexture;
+uniform samplerBuffer offsetBuffer;
 
 out vec3 test;
 
 void main() {
-	vec3 offset = vec3(gl_InstanceID % 16, (gl_InstanceID / 16) % 256, gl_InstanceID / (16 * 256));
+	vec3 offset = texelFetch(offsetBuffer, gl_InstanceID).rgb;
 
 	normal = normalize(transpose(inverse(mat3(model))) * inputNormal);
 
@@ -25,7 +25,7 @@ void main() {
 
 	textureCordinates = inputTextureCords;
 
-	test = offset;
+	test = offset / 255;
 
 	gl_Position = projection * view * model * vec4(inputPositon + offset, 1.0);
 }
