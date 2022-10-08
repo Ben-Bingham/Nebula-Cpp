@@ -11,11 +11,11 @@ namespace Nebula {
 		}
 
 		// The assumption is made that a shader program is bound prior to this being called
-		void render() const override {
+		void render(int numbertoRender) const {
 			VAO.bind();
 			Ruby::ShaderProgram::upload("model", model);
 			Ruby::ShaderProgram::upload("material", 0, *material);
-			glDrawElementsInstanced(GL_TRIANGLES, numberOfIndicies, GL_UNSIGNED_INT, 0, (16 * 256 * 16));
+			glDrawElementsInstanced(GL_TRIANGLES, numberOfIndicies, GL_UNSIGNED_INT, 0, numbertoRender);
 		}
 	};
 }
