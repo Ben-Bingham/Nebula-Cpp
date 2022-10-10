@@ -2,21 +2,13 @@
 
 #include "Window.h"
 #include "Renderer.h"
-#include "Renderable Objects/Phong/PhongCube.h"
-#include "TextFile.h"
-
-#include "OpenGL objects/BufferTexture.h"
-
-#include "PhongInstanceRenderable.h"
-
-#include "BlockManager.h"
-#include "Arrays/IndexCordinateConversion.h"
-
-#include "Chunk.h"
+#include "World/BlockManager.h"
+#include "World/Chunk.h"
 
 const unsigned int worldSize{ 5 };
 
 Ruby::Camera camera{ Malachite::Vector3f{ worldSize / 2 * 16.0f, 90.0f, worldSize / 2 * 16.0f } };
+
 struct FPSController {
 	bool firstMouse = true;
 	int lastX = 0;
@@ -24,6 +16,8 @@ struct FPSController {
 	float mouseSensitivity = 0.1f;
 	Malachite::Degree yaw = -90.0f;
 	Malachite::Degree pitch;
+
+	float speed = 0.1f;
 };
 FPSController fpsController{ };
 
@@ -61,56 +55,14 @@ void mousePositionCallback(int xpos, int ypos, void* data) {
 	camera.updateCameraVectors();
 }
 
-const unsigned int xSize{ 16 };
-const unsigned int ySize{ 256 };
-const unsigned int zSize{ 16 };
+void mouseScrollCallback(int xoffset, int yoffset, void* data) {
+	FPSController* controller = (FPSController*)data;
+	controller->speed += yoffset * 0.001f;
 
-const std::vector<unsigned int> indices{
-		0, 1, 2,
-		1, 3, 2,
-		4, 5, 6,
-		5, 7, 6,
-		8, 9, 10,
-		9, 11, 10,
-		12, 13, 14,
-		13, 15, 14,
-		16, 17, 18,
-		17, 19, 18,
-		20, 21, 22,
-		21, 23, 22,
-};
-
-const std::vector<float> verticies{
-	-0.5f, -0.5f,  0.5f,   0.0f,  0.0f,  1.0f, 0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,   0.0f,  0.0f,  1.0f, 0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,   0.0f,  0.0f,  1.0f, 1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,   0.0f,  0.0f,  1.0f, 1.0f, 1.0f,
-
-	 0.5f, -0.5f,  0.5f,   1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,   1.0f,  0.0f,  0.0f, 0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,   1.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,   1.0f,  0.0f,  0.0f, 1.0f, 1.0f,
-
-	-0.5f, -0.5f, -0.5f,  -1.0f,  0.0f,  0.0, 0.0f, 0.0,
-	-0.5f,  0.5f, -0.5f,  -1.0f,  0.0f,  0.0, 0.0f, 1.0,
-	-0.5f, -0.5f,  0.5f,  -1.0f,  0.0f,  0.0, 1.0f, 0.0,
-	-0.5f,  0.5f,  0.5f,  -1.0f,  0.0f,  0.0, 1.0f, 1.0,
-
-	-0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f, 0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f, 0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f, 1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f, 1.0f, 1.0f,
-
-	 0.5f, -0.5f, -0.5f,   0.0f,  0.0f,  -1.0f, 0.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,   0.0f,  0.0f,  -1.0f, 0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,   0.0f,  0.0f,  -1.0f, 1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,   0.0f,  0.0f,  -1.0f, 1.0f, 1.0f,
-
-	-0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f, 0.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f, 0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f, 1.0f, 1.0f
-};
+	if (controller->speed < 0) {
+		controller->speed = 0;
+	}
+}
 
 int main() {
 	Ruby::Window window{ 640, 480 };
@@ -118,6 +70,7 @@ int main() {
 	Ruby::Keyboard* keyboard = &window.ioManger.keyboard;
 
 	mouse->addMousePositionCallback(mousePositionCallback, (void*)&fpsController);
+	mouse->addScrollCallback(mouseScrollCallback, (void*)&fpsController);
 	window.disableCursor();
 
 	Ruby::Renderer renderer{ };
@@ -136,16 +89,15 @@ int main() {
 
 	Ruby::PhongMaterial cubeMaterial{ diffuseTexture, specularTexture };
 
-
 	Ruby::Image textureAtlasImage{ Malachite::Vector3f{1.0f, 0.0f, 0.0f } }; //TODO not solid colour // TODO index 0 should be unknown and 1 should be air
 	Ruby::Texture textureAtlas{ textureAtlasImage };
 	Ruby::PhongMaterial atlasMaterial{ textureAtlas, textureAtlas }; //TODO atlas for specular textures //TODO make the texture atlas static
 
 	Nebula::BlockManager::addBlock(Nebula::Block{ "BLOCK_AIR", std::array<unsigned int, 6>{1, 1, 1, 1, 1, 1} });
 	Nebula::BlockManager::addBlock(Nebula::Block{ "BLOCK_CONTAINER", std::array<unsigned int, 6>{2, 2, 2, 2, 2, 2} });
-
+	
+	// TODO chunk manager
 	std::vector<Nebula::Chunk> chunks{};
-
 
 	Nebula::ChunkRenderable chunkRenderable{ atlasMaterial };
 
@@ -224,30 +176,29 @@ int main() {
 
 	while (window.isOpen() /*&& frameCount < 100*/) {
 		window.pollEvents();
-		float velocity = 0.1f;
 
 		if (keyboard->KEY_W) {
-			camera.position += camera.front * velocity;
+			camera.position += camera.front * fpsController.speed;
 		}
 
 		if (keyboard->KEY_A) {
-			camera.position -= camera.right * velocity;
+			camera.position -= camera.right * fpsController.speed;
 		}
 
 		if (keyboard->KEY_S) {
-			camera.position -= camera.front * velocity;
+			camera.position -= camera.front * fpsController.speed;
 		}
 
 		if (keyboard->KEY_D) {
-			camera.position += camera.right * velocity;
+			camera.position += camera.right * fpsController.speed;
 		}
 
 		if (keyboard->KEY_SPACE) {
-			camera.position += Malachite::Vector3f{ 0.0f, 1.0f, 0.0f } *velocity;
+			camera.position += Malachite::Vector3f{ 0.0f, 1.0f, 0.0f } * fpsController.speed;
 		}
 
 		if (keyboard->KEY_LEFT_SHIFT) {
-			camera.position -= Malachite::Vector3f{ 0.0f, 1.0f, 0.0f } *velocity;
+			camera.position -= Malachite::Vector3f{ 0.0f, 1.0f, 0.0f } * fpsController.speed;
 		}
 
 		if (keyboard->KEY_ESCAPE) {

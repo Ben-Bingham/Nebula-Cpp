@@ -2,12 +2,11 @@
 #include <vector>
 
 #include "Vector.h"
-#include "ChunkRenderable.h"
+#include "Rendering/ChunkRenderable.h"
 #include "BlockManager.h"
 #include "Block.h"
-namespace Nebula {
-	//struct Block;
 
+namespace Nebula {
 	class Chunk {
 	public:
 		Chunk(Malachite::Vector2i absPos, ChunkRenderable& renderable)  //TODO make the texture atlas static
@@ -29,7 +28,7 @@ namespace Nebula {
 
 		void render() {
 			renderable->model = Malachite::Matrix4f{ 1.0f };
-			renderable->model.translate(absolutePosition.x * 16, 0, absolutePosition.y * 16);
+			renderable->model.translate(absolutePosition.x * 16.0f, 0.0f, absolutePosition.y * 16.0f);
 			Ruby::ShaderProgram::upload("offsetBuffer", 5, offsetBufferTexture);
 			renderable->setNumberToRender(blocksToRender);
 
