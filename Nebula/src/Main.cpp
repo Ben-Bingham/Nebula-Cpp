@@ -9,7 +9,14 @@
 
 #include "PhongInstanceRenderable.h"
 
-Ruby::Camera camera{ Malachite::Vector3f{0.0f, 0.0f, 3.0f } };
+#include "BlockManager.h"
+#include "Arrays/IndexCordinateConversion.h"
+
+#include "Chunk.h"
+
+const unsigned int worldSize{ 5 };
+
+Ruby::Camera camera{ Malachite::Vector3f{ worldSize / 2 * 16.0f, 90.0f, worldSize / 2 * 16.0f } };
 struct FPSController {
 	bool firstMouse = true;
 	int lastX = 0;
@@ -57,9 +64,7 @@ void mousePositionCallback(int xpos, int ypos, void* data) {
 const unsigned int xSize{ 16 };
 const unsigned int ySize{ 256 };
 const unsigned int zSize{ 16 };
-//
-//using Chunk = unsigned char[xSize][ySize][zSize];
-//
+
 const std::vector<unsigned int> indices{
 		0, 1, 2,
 		1, 3, 2,
@@ -108,7 +113,7 @@ const std::vector<float> verticies{
 };
 
 int main() {
-	Ruby::Window window{ };
+	Ruby::Window window{ 640, 480 };
 	Ruby::Mouse* mouse = &window.ioManger.mouse;
 	Ruby::Keyboard* keyboard = &window.ioManger.keyboard;
 
@@ -130,113 +135,73 @@ int main() {
 	Ruby::Texture specularTexture{ containerSpecularImage };
 
 	Ruby::PhongMaterial cubeMaterial{ diffuseTexture, specularTexture };
-	Nebula::PhongInstanceRenderable cube{ verticies, indices, cubeMaterial};
 
-	unsigned char chunk[16][256][16];
-	unsigned int blocksToRender{ 0 };
 
-	/*for (size_t x = 0; x < xSize; x++) {
-		for (size_t y = 0; y < ySize; y++) {
-			for (size_t z = 0; z < zSize; z++) {
-				if ((x != xSize && x != 0) && (y != ySize && y != 0) && (z != zSize && z != 0)) {
-					chunk[x][y][z] = 0;
-				}
-				else {
-					chunk[x][y][z] = 1;
-				}
-			}
+	Ruby::Image textureAtlasImage{ Malachite::Vector3f{1.0f, 0.0f, 0.0f } }; //TODO not solid colour // TODO index 0 should be unknown and 1 should be air
+	Ruby::Texture textureAtlas{ textureAtlasImage };
+	Ruby::PhongMaterial atlasMaterial{ textureAtlas, textureAtlas }; //TODO atlas for specular textures //TODO make the texture atlas static
+
+	Nebula::BlockManager::addBlock(Nebula::Block{ "BLOCK_AIR", std::array<unsigned int, 6>{1, 1, 1, 1, 1, 1} });
+	Nebula::BlockManager::addBlock(Nebula::Block{ "BLOCK_CONTAINER", std::array<unsigned int, 6>{2, 2, 2, 2, 2, 2} });
+
+	std::vector<Nebula::Chunk> chunks{};
+
+
+	Nebula::ChunkRenderable chunkRenderable{ atlasMaterial };
+
+	for (unsigned int x = 0; x < worldSize; x++) {
+		for (unsigned int y = 0; y < worldSize; y++) {
+			chunks.push_back(Nebula::Chunk{ Malachite::Vector2i{(int)x, (int)y}, chunkRenderable });
+			chunks.back().generateBlocks();
 		}
-	}*/
+	}
 
-	for (size_t x = 0; x < xSize; x++) {
-		for (size_t y = 0; y < ySize; y++) {
-			for (size_t z = 0; z < zSize; z++) {
-				chunk[x][y][z] = 1;
+	Nebula::Chunk airChunk{ Malachite::Vector2i{0, 0}, chunkRenderable };
+
+	Nebula::Block* airBlock = Nebula::BlockManager::getBlock("BLOCK_AIR");
+
+	for (unsigned int x = 0; x < airChunk.blocks.size(); x++) {
+		for (unsigned int y = 0; y < airChunk.blocks[x].size(); y++) {
+			for (unsigned int z = 0; z < airChunk.blocks[x][y].size(); z++) {
+				airChunk.blocks[x][y][z] = airBlock;
 			}
 		}
 	}
 
+	unsigned int i{ 0 };
+	for (Nebula::Chunk& chunk : chunks) {
+		int x = i / worldSize;
+		int y = i % worldSize;
 
-	std::vector<float> content{};
-	for (unsigned int x = 0; x < xSize; x++) {
-		for (unsigned int y = 0; y < ySize; y++) {
-			for (unsigned int z = 0; z < zSize; z++) {
-				unsigned char block = chunk[x][y][z];
-				unsigned char posXBlock{ 0 };
-				unsigned char negXBlock{ 0 };
-				unsigned char posYBlock{ 0 };
-				unsigned char negYBlock{ 0 };
-				unsigned char posZBlock{ 0 };
-				unsigned char negZBlock{ 0 };
+		Nebula::Chunk* posX{ &airChunk };
+		Nebula::Chunk* negX{ &airChunk };
+		Nebula::Chunk* posY{ &airChunk };
+		Nebula::Chunk* negY{ &airChunk };
 
-				if (block != 0) { 
-					if (x <= 14) {
-						posXBlock = chunk[x + 1][y][z];
-					}
-					if (x >= 1) {
-						negXBlock = chunk[x - 1][y][z];
-					}
+		Malachite::Vector2i posXAbsCords{ x + 1, y };
+		Malachite::Vector2i negXAbsCords{ x - 1, y };
+		Malachite::Vector2i posYAbsCords{ x, y + 1 };
+		Malachite::Vector2i negYAbsCords{ x, y - 1 };
 
-					if (y <= 254) {
-						posYBlock = chunk[x][y + 1][z];
-					}
-					if (y >= 1) {
-						negYBlock = chunk[x][y - 1][z];
-					}
-
-					if (z <= 14) {
-						posZBlock = chunk[x][y][z + 1];
-					}
-					if (z >= 1) {
-						negZBlock = chunk[x][y][z - 1];
-					}
-
-					if (posXBlock == 0 || negXBlock == 0 || posYBlock == 0 || negYBlock == 0 || posZBlock == 0 || negZBlock == 0) {
-						content.push_back(static_cast<float>(x));
-						content.push_back(static_cast<float>(y));
-						content.push_back(static_cast<float>(z));
-						blocksToRender++;
-					}
-				}
-
-				/*if (block == 0) { continue; }
-
-				if (x != 16 && x != 0 && y != 256 && y != 0 && z != 16 && z != 0) {
-					unsigned char posXBlock = chunk[x + 1][y][z];
-					unsigned char negXBlock = chunk[x - 1][y][z];
-					unsigned char posYBlock = chunk[x][y + 1][z];
-					unsigned char negYBlock = chunk[x][y - 1][z];
-					unsigned char posZBlock = chunk[x][y][z + 1];
-					unsigned char negZBlock = chunk[x][y][z - 1];
-
-					if (posXBlock != 0 && negXBlock != 0 && posYBlock != 0 && negYBlock != 0 && posZBlock != 0 && negZBlock != 0) {
-						continue;
-					}
-
-					content.push_back(static_cast<float>(x));
-					content.push_back(static_cast<float>(y));
-					content.push_back(static_cast<float>(z));
-					blocksToRender++;
-					continue;
-				}
-				content.push_back(static_cast<float>(x));
-				content.push_back(static_cast<float>(y));
-				content.push_back(static_cast<float>(z));
-				blocksToRender++;*/
+		for (Nebula::Chunk& chunk : chunks) {
+			if (chunk.absolutePosition == posXAbsCords) {
+				posX = &chunk;
+			}
+			else if (chunk.absolutePosition == negXAbsCords) {
+				negX = &chunk;
+			}
+			else if (chunk.absolutePosition == posYAbsCords) {
+				posY = &chunk;
+			}
+			else if (chunk.absolutePosition == negYAbsCords) {
+				negY = &chunk;
 			}
 		}
+
+		chunk.createTextureBuffer(*posX, *negX, *posY, *negY);
+		i++;
 	}
 
-	Ruby::VertexAttributeObject::unbind();
-
-	Ruby::VertexBufferObject textureBufferVBO{};
-	textureBufferVBO.bind();
-	textureBufferVBO.setData(content);
-	textureBufferVBO.unbind();
-
-	Ruby::VertexAttributeObject::unbind();
-
-	Ruby::BufferTexture bufferTexture{ textureBufferVBO, GL_RGB32F };
 
 	Ruby::DirectionalLight dirLight{};
 	std::vector<Ruby::DirectionalLight*> directionalLights{};
@@ -247,7 +212,7 @@ int main() {
 
 	phongInstanceProgram.use();
 	Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
-	Ruby::ShaderProgram::upload("offsetBuffer", 5, bufferTexture);
+	Ruby::ShaderProgram::upload("material", 0, atlasMaterial);
 
 	renderer.init(window.getProjectionMatrix());
 
@@ -306,12 +271,8 @@ int main() {
 
 				Ruby::ShaderProgram::upload("cameraPosition", camera.position);
 
-				for (unsigned int x = 0; x < 5; x++) {
-					for (unsigned int y = 0; y < 5; y++) {
-						cube.model.translate(x * 16, 0, y * 16);
-						cube.render(blocksToRender);
-						cube.model = Malachite::Matrix4f{ 1.0f };
-					}
+				for (Nebula::Chunk& chunk : chunks) {
+					chunk.render();
 				}
 			}
 
