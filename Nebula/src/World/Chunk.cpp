@@ -1,11 +1,13 @@
 #include "Chunk.h"
 #include "BlockManager.h"
+#include "Bit Manipulation/Concatination.h"
 
 namespace Nebula {
 	void Chunk::generateBlocks(BlockManager* blockManager) { // Generates what blocks are actually in the chunk
 		Block* airBlock = blockManager->getBlock("BLOCK_AIR");
 		Block* dirtBlock = blockManager->getBlock("BLOCK_DIRT");
-		Block* unknownBlock = blockManager->getBlock("BLOCK_UNKNOWN");
+		Block* unknownBlock = blockManager->getBlock("BLOCK_GRASS");
+		Block* randomBlock = blockManager->getBlock("BLOCK_RANDOM");
 
 		for (size_t x = 0; x < xSize; x++) {
 			for (size_t y = 0; y < ySize; y++) {
@@ -22,10 +24,12 @@ namespace Nebula {
 				}
 			}
 		}
+
+		blocks[8][90][8] = randomBlock;
 	}
 
 	void Chunk::createTextureBuffer(const Chunk& posXChunk, const Chunk& negXChunk, const Chunk& posYChunk, const Chunk& negYChunk, BlockManager* blockManager) { // Generates "Geometry"
-		std::vector<float> content{ };
+		std::vector<unsigned int> content{ };
 		unsigned int blocksToRend{ 0 };
 
 		Block* airBlock = blockManager->getBlock("BLOCK_AIR");
@@ -81,11 +85,10 @@ namespace Nebula {
 						}
 
 						if (posXBlock == airBlock || negXBlock == airBlock || posYBlock == airBlock || negYBlock == airBlock || posZBlock == airBlock || negZBlock == airBlock) {
-							content.push_back(static_cast<float>(x));
-							content.push_back(static_cast<float>(y));
-							content.push_back(static_cast<float>(z));
-							content.push_back(static_cast<float>(block->textureIDs[0]));
-							//TODO add additional texture info
+							content.push_back(Malachite::concatenate(block->textureIDs[0], block->textureIDs[1]));
+							content.push_back(Malachite::concatenate(block->textureIDs[2], block->textureIDs[3]));
+							content.push_back(Malachite::concatenate(block->textureIDs[4], block->textureIDs[5]));
+							content.push_back(Malachite::concatenate(Malachite::concatenate((unsigned char)x, (unsigned char)y), Malachite::concatenate((unsigned char)z, 0)));
 							blocksToRend++;
 						}
 					}
@@ -103,7 +106,7 @@ namespace Nebula {
 		textureBufferVBO.unbind();
 
 		offsetBufferTexture.bind();
-		offsetBufferTexture.setData(textureBufferVBO, GL_RGBA32F);
+		offsetBufferTexture.setData(textureBufferVBO, GL_RGBA32UI);
 	}
 
 	const unsigned int Chunk::xSize{ 16 };

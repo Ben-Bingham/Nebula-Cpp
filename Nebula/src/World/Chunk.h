@@ -9,7 +9,7 @@
 namespace Nebula {
 	class Chunk {
 	public:
-		Chunk(Malachite::Vector2i absPos, ChunkRenderable& renderable)  //TODO make the texture atlas static
+		Chunk(Malachite::Vector2i absPos, ChunkRenderable& renderable)
 			: absolutePosition(absPos), renderable(&renderable) {
 
 			blocks.resize(16);

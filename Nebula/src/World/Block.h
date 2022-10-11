@@ -2,12 +2,12 @@
 
 namespace Nebula {
 	struct Block {
-		Block(std::string iName, std::array<unsigned int, 6> texIds = { 0, 0, 0, 0, 0, 0 })
+		Block(std::string iName, std::array<unsigned short, 6> texIds = { 0, 0, 0, 0, 0, 0 })
 			: internalName(iName), textureIDs(texIds) {
 		}
 
 		unsigned int ID{ getNextID() };
-		std::array<unsigned int, 6> textureIDs;
+		std::array<unsigned short, 6> textureIDs;
 
 		std::string internalName;
 	private:

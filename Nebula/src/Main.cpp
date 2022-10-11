@@ -6,6 +6,7 @@
 #include "World/Chunk.h"
 
 #include "Rendering/TextureAtlas.h"
+#include "Bit Manipulation/Concatination.h"
 
 const unsigned int worldSize{ 5 };
 
@@ -68,7 +69,7 @@ void mouseScrollCallback(int xoffset, int yoffset, void* data) {
 
 int main() {
 	// Engine Setup
-	Ruby::Window window{ 640, 480 };
+	Ruby::Window window{ 640, 480, "Nebula", 3000.0f};
 	Ruby::Mouse* mouse = &window.ioManger.mouse;
 	Ruby::Keyboard* keyboard = &window.ioManger.keyboard;
 
@@ -81,13 +82,22 @@ int main() {
 	// Game Setup
 	Nebula::BlockManager blockManager{};
 
-	unsigned int unknownImageIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\unknown.png" }, "IMAGE_UNKNOWN"); //0
-	unsigned int airImageIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\air.png" }, "IMAGE_AIR");			// 1
-	unsigned int dirtImageIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\dirt.png" }, "IMAGE_DIRT");			// 2
+	unsigned short unknownImageIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\unknown.png" }, "IMAGE_UNKNOWN");
+	unsigned short airImageIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\air.png" }, "IMAGE_AIR");
+	unsigned short dirtImageIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\dirt.png" }, "IMAGE_DIRT");
 
-	blockManager.addBlock(Nebula::Block{ "BLOCK_AIR", std::array<unsigned int, 6>{ airImageIndex, airImageIndex, airImageIndex, airImageIndex, airImageIndex, airImageIndex }});
-	blockManager.addBlock(Nebula::Block{ "BLOCK_DIRT", std::array<unsigned int, 6>{ dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex } });
-	blockManager.addBlock(Nebula::Block{ "BLOCK_UNKNOWN", std::array<unsigned int, 6>{ unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex } });
+	unsigned short grassTopIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\grass_top.png" }, "IMAGE_GRASS_TOP");
+	unsigned short planetCoreIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\planet_core.png" }, "IMAGE_PLANET_CORE");
+	unsigned short stoneIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\stone.png" }, "IMAGE_STONE");
+	unsigned short grassSideIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\grass_side.png" }, "IMAGE_GRASS_SIDE");
+
+	// texture order: PosX, NegX, PosY, NegY, PosZ, NegZ
+	blockManager.addBlock(Nebula::Block{ "BLOCK_AIR", std::array<unsigned short, 6>{ airImageIndex, airImageIndex, airImageIndex, airImageIndex, airImageIndex, airImageIndex }});
+	blockManager.addBlock(Nebula::Block{ "BLOCK_DIRT", std::array<unsigned short, 6>{ dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex } });
+	blockManager.addBlock(Nebula::Block{ "BLOCK_UNKNOWN", std::array<unsigned short, 6>{ unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex } });
+	blockManager.addBlock(Nebula::Block{ "BLOCK_RANDOM", std::array<unsigned short, 6>{ grassTopIndex, planetCoreIndex, stoneIndex, grassSideIndex, unknownImageIndex, dirtImageIndex } });
+
+	blockManager.addBlock(Nebula::Block{ "BLOCK_GRASS", std::array<unsigned short, 6>{ grassSideIndex, grassSideIndex, grassTopIndex, dirtImageIndex, grassSideIndex, grassSideIndex } });
 
 	Nebula::TextureAtlas atlas{ blockManager.imageManager.getImages() };
 
@@ -99,10 +109,6 @@ int main() {
 	Ruby::ShaderProgram phongInstanceProgram{ phongInstanceVertexShader, phongInstanceFragmentShader, std::vector<Ruby::Attribute>{ 3, 3, 2 } };
 
 	renderer.addShader(phongInstanceProgram);
-
-
-
-
 	
 	// TODO chunk manager
 	std::vector<Nebula::Chunk> chunks{};
@@ -174,7 +180,6 @@ int main() {
 	Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
 	Ruby::ShaderProgram::upload("material", 0, atlasMaterial);
 	Ruby::ShaderProgram::upload("texturesPerSide", (int)atlas.imagesPerSide);
-	//Ruby::ShaderProgram::upload("texCordBuffer", 5, atlas.textureCordBufferTexture);
 
 	renderer.init(window.getProjectionMatrix());
 
