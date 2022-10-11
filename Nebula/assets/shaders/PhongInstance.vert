@@ -14,6 +14,13 @@ uniform mat4 projection;
 
 uniform samplerBuffer offsetBuffer;
 
+
+
+//uniform int textureIndex;
+uniform int texturesPerSide;
+
+
+
 out vec3 test;
 
 void main() {
@@ -23,7 +30,19 @@ void main() {
 
 	fragmentPosition = vec3(model * vec4(inputPositon + offset, 1.0));
 
-	textureCordinates = inputTextureCords;
+	vec2 texCords;
+	
+	int textureIndex = int(texelFetch(offsetBuffer, gl_InstanceID).a);
+
+	texCords = inputTextureCords / texturesPerSide;
+	int x = textureIndex % texturesPerSide;
+	int y = textureIndex / texturesPerSide;
+	float imageWorth = 1.0 / texturesPerSide;
+	
+	texCords.x += imageWorth * x;
+	texCords.y += imageWorth * y;
+	
+	textureCordinates = texCords;
 
 	test = offset / 255;
 

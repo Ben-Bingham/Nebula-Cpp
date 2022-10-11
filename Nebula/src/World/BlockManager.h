@@ -6,15 +6,18 @@
 
 #include "Log.h"
 #include "Block.h"
+#include "Rendering/ImageManager.h"
 
 namespace Nebula {
 	class BlockManager {
 	public:
-		static void addBlock(Block& block) {
+		BlockManager() { }
+
+		void addBlock(Block& block) {
 			blocks.push_back(std::move(block));
 		}
 
-		static Block* getBlock(const std::string& name) {
+		Block* getBlock(const std::string& name) {
 			for (Block& block : blocks) {
 				if (block.internalName == name) {
 					return &block;
@@ -24,7 +27,7 @@ namespace Nebula {
 			return nullptr;
 		}
 
-		static Block* getBlock(unsigned int ID) {
+		Block* getBlock(unsigned int ID) {
 			for (Block& block : blocks) {
 				if (block.ID == ID) {
 					return &block;
@@ -34,7 +37,9 @@ namespace Nebula {
 			return nullptr;
 		}
 
+		ImageManager imageManager;
+
 	private:
-		static std::vector<Block> blocks;
+		std::vector<Block> blocks;
 	};
 }

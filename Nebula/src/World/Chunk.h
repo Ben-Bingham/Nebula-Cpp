@@ -22,9 +22,9 @@ namespace Nebula {
 			}
 		}
 
-		void generateBlocks();
+		void generateBlocks(BlockManager* blockManager);
 		
-		void createTextureBuffer(const Chunk& posX, const Chunk& negX, const Chunk& posY, const Chunk& negY);
+		void createTextureBuffer(const Chunk& posX, const Chunk& negX, const Chunk& posY, const Chunk& negY, BlockManager* blockManager);
 
 		void render() {
 			renderable->model = Malachite::Matrix4f{ 1.0f };

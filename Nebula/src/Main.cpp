@@ -5,6 +5,8 @@
 #include "World/BlockManager.h"
 #include "World/Chunk.h"
 
+#include "Rendering/TextureAtlas.h"
+
 const unsigned int worldSize{ 5 };
 
 Ruby::Camera camera{ Malachite::Vector3f{ worldSize / 2 * 16.0f, 90.0f, worldSize / 2 * 16.0f } };
@@ -65,6 +67,7 @@ void mouseScrollCallback(int xoffset, int yoffset, void* data) {
 }
 
 int main() {
+	// Engine Setup
 	Ruby::Window window{ 640, 480 };
 	Ruby::Mouse* mouse = &window.ioManger.mouse;
 	Ruby::Keyboard* keyboard = &window.ioManger.keyboard;
@@ -75,26 +78,31 @@ int main() {
 
 	Ruby::Renderer renderer{ };
 
+	// Game Setup
+	Nebula::BlockManager blockManager{};
+
+	unsigned int unknownImageIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\unknown.png" }, "IMAGE_UNKNOWN"); //0
+	unsigned int airImageIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\air.png" }, "IMAGE_AIR");			// 1
+	unsigned int dirtImageIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\dirt.png" }, "IMAGE_DIRT");			// 2
+
+	blockManager.addBlock(Nebula::Block{ "BLOCK_AIR", std::array<unsigned int, 6>{ airImageIndex, airImageIndex, airImageIndex, airImageIndex, airImageIndex, airImageIndex }});
+	blockManager.addBlock(Nebula::Block{ "BLOCK_DIRT", std::array<unsigned int, 6>{ dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex } });
+	blockManager.addBlock(Nebula::Block{ "BLOCK_UNKNOWN", std::array<unsigned int, 6>{ unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex } });
+
+	Nebula::TextureAtlas atlas{ blockManager.imageManager.getImages() };
+
+	Ruby::PhongMaterial atlasMaterial{ atlas, atlas }; //TODO atlas for specular textures
+
+	// Shader setup
 	Ruby::VertexShader phongInstanceVertexShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.vert" } };
 	Ruby::FragmentShader phongInstanceFragmentShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.frag" } };
 	Ruby::ShaderProgram phongInstanceProgram{ phongInstanceVertexShader, phongInstanceFragmentShader, std::vector<Ruby::Attribute>{ 3, 3, 2 } };
 
 	renderer.addShader(phongInstanceProgram);
 
-	Ruby::Image containerImage{ "assets\\images\\container.png" };
-	Ruby::Image containerSpecularImage{ "assets\\images\\container_specular.png" };
 
-	Ruby::Texture diffuseTexture{ containerImage };
-	Ruby::Texture specularTexture{ containerSpecularImage };
 
-	Ruby::PhongMaterial cubeMaterial{ diffuseTexture, specularTexture };
 
-	Ruby::Image textureAtlasImage{ Malachite::Vector3f{1.0f, 0.0f, 0.0f } }; //TODO not solid colour // TODO index 0 should be unknown and 1 should be air
-	Ruby::Texture textureAtlas{ textureAtlasImage };
-	Ruby::PhongMaterial atlasMaterial{ textureAtlas, textureAtlas }; //TODO atlas for specular textures //TODO make the texture atlas static
-
-	Nebula::BlockManager::addBlock(Nebula::Block{ "BLOCK_AIR", std::array<unsigned int, 6>{1, 1, 1, 1, 1, 1} });
-	Nebula::BlockManager::addBlock(Nebula::Block{ "BLOCK_CONTAINER", std::array<unsigned int, 6>{2, 2, 2, 2, 2, 2} });
 	
 	// TODO chunk manager
 	std::vector<Nebula::Chunk> chunks{};
@@ -104,13 +112,13 @@ int main() {
 	for (unsigned int x = 0; x < worldSize; x++) {
 		for (unsigned int y = 0; y < worldSize; y++) {
 			chunks.push_back(Nebula::Chunk{ Malachite::Vector2i{(int)x, (int)y}, chunkRenderable });
-			chunks.back().generateBlocks();
+			chunks.back().generateBlocks(&blockManager);
 		}
 	}
 
 	Nebula::Chunk airChunk{ Malachite::Vector2i{0, 0}, chunkRenderable };
 
-	Nebula::Block* airBlock = Nebula::BlockManager::getBlock("BLOCK_AIR");
+	Nebula::Block* airBlock = blockManager.getBlock("BLOCK_AIR");
 
 	for (unsigned int x = 0; x < airChunk.blocks.size(); x++) {
 		for (unsigned int y = 0; y < airChunk.blocks[x].size(); y++) {
@@ -150,7 +158,7 @@ int main() {
 			}
 		}
 
-		chunk.createTextureBuffer(*posX, *negX, *posY, *negY);
+		chunk.createTextureBuffer(*posX, *negX, *posY, *negY, &blockManager);
 		i++;
 	}
 
@@ -165,6 +173,8 @@ int main() {
 	phongInstanceProgram.use();
 	Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
 	Ruby::ShaderProgram::upload("material", 0, atlasMaterial);
+	Ruby::ShaderProgram::upload("texturesPerSide", (int)atlas.imagesPerSide);
+	//Ruby::ShaderProgram::upload("texCordBuffer", 5, atlas.textureCordBufferTexture);
 
 	renderer.init(window.getProjectionMatrix());
 
@@ -174,6 +184,7 @@ int main() {
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	// Game Loop
 	while (window.isOpen() /*&& frameCount < 100*/) {
 		window.pollEvents();
 
@@ -240,6 +251,7 @@ int main() {
 		averageTime += deltaTime;
 	}
 
+	// Game Wrap up
 	LOG("Number of frames: " + std::to_string(frameCount));
 	LOG("Average delta time: " + std::to_string(averageTime / frameCount));
 	LOG("Average FPS: " + std::to_string(1.0f / (averageTime / frameCount)));
