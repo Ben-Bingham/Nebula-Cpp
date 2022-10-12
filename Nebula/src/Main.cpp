@@ -9,6 +9,8 @@
 #include "Rendering/TextureAtlas.h"
 #include "Bit Manipulation/Concatination.h"
 
+#include "Space/CelestialBody.h"
+
 const unsigned int worldSize{ 5 };
 
 Ruby::Camera camera{ Malachite::Vector3f{ worldSize / 2 * 16.0f, 90.0f, worldSize / 2 * 16.0f } };
@@ -70,7 +72,7 @@ void mouseScrollCallback(int xoffset, int yoffset, void* data) {
 
 int main() {
 	// Engine Setup
-	Ruby::Window window{ 640, 480, "Nebula", 3000.0f};
+	Ruby::Window window{ 640, 480, "Nebula", 3000.0f };
 	Ruby::Mouse* mouse = &window.ioManger.mouse;
 	Ruby::Keyboard* keyboard = &window.ioManger.keyboard;
 
@@ -94,7 +96,7 @@ int main() {
 	unsigned short grassSideIndex = blockManager.diffuseImageManager.addImage(Ruby::Image{ "assets\\images\\textures\\grass_side.png" }, "IMAGE_GRASS_SIDE");
 
 	// texture order: PosX, NegX, PosY, NegY, PosZ, NegZ
-	blockManager.addBlock(Nebula::Block{ "BLOCK_AIR", std::array<unsigned short, 6>{ airImageIndex, airImageIndex, airImageIndex, airImageIndex, airImageIndex, airImageIndex }});
+	blockManager.addBlock(Nebula::Block{ "BLOCK_AIR", std::array<unsigned short, 6>{ airImageIndex, airImageIndex, airImageIndex, airImageIndex, airImageIndex, airImageIndex } });
 	blockManager.addBlock(Nebula::Block{ "BLOCK_DIRT", std::array<unsigned short, 6>{ dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex } });
 	blockManager.addBlock(Nebula::Block{ "BLOCK_UNKNOWN", std::array<unsigned short, 6>{ unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex } });
 	blockManager.addBlock(Nebula::Block{ "BLOCK_RANDOM", std::array<unsigned short, 6>{ grassTopIndex, planetCoreIndex, stoneIndex, grassSideIndex, unknownImageIndex, dirtImageIndex } });
@@ -112,7 +114,7 @@ int main() {
 	Ruby::ShaderProgram phongInstanceProgram{ phongInstanceVertexShader, phongInstanceFragmentShader, std::vector<Ruby::Attribute>{ 3, 3, 2 } };
 
 	renderer.addShader(phongInstanceProgram);
-	
+
 	// TODO chunk manager
 	std::vector<Nebula::Chunk> chunks{};
 	Ruby::VertexBufferObject textureBufferVBO{ };
@@ -175,6 +177,27 @@ int main() {
 		i++;
 	}
 
+	// Skybox setup
+	std::vector<Ruby::Image> skyboxImages{
+		Ruby::Image{ "assets\\skybox\\right.jpg", false },
+		Ruby::Image{ "assets\\skybox\\left.jpg", false },
+		Ruby::Image{ "assets\\skybox\\top.jpg", false },
+		Ruby::Image{ "assets\\skybox\\bottom.jpg", false },
+		Ruby::Image{ "assets\\skybox\\front.jpg", false },
+		Ruby::Image{ "assets\\skybox\\back.jpg", false }
+	};
+
+	Ruby::Skybox skybox{ skyboxImages };
+
+
+
+
+	// Celestial body playground
+	Nebula::CelestialBody sun{ 1.989f * pow(10.0f, 30), 696340.0f, 0.0f, Ruby::Colour{ 229,79,6 } };
+
+	Nebula::CelestialBody earth{ 5.97f * pow(10.0f, 24), 6.37 * pow(10.0f, 6), 149320000, Ruby::Colour{19,26,45} };
+	sun.addChild(earth);
+
 	Ruby::DirectionalLight dirLight{};
 	std::vector<Ruby::DirectionalLight*> directionalLights{};
 	directionalLights.push_back(&dirLight);
@@ -230,11 +253,12 @@ int main() {
 		{ // Rendering
 			renderer.prep(camera.getViewMatrix());
 
-			{ // Normal Rendering
+			{ // Planet Rendering
 				renderer.phongRenderingPrep();
 
-				// Cube
 				Ruby::ShaderProgram::upload("cameraPosition", camera.position);
+
+
 
 				renderer.phongRenderingEnd();
 			}
@@ -247,6 +271,14 @@ int main() {
 				for (Nebula::Chunk& chunk : chunks) {
 					chunk.render(offsetBufferTexture, textureBufferVBO);
 				}
+			}
+
+			{ // Skybox
+				renderer.skyboxRenderingPrep();
+
+				renderer.skyboxRender(skybox);
+
+				renderer.skyboxRenderingEnd();
 			}
 
 			renderer.end();
