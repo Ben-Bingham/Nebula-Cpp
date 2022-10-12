@@ -9,7 +9,7 @@
 #include "Rendering/TextureAtlas.h"
 #include "Bit Manipulation/Concatination.h"
 
-const unsigned int worldSize{ 2 };
+const unsigned int worldSize{ 5 };
 
 Ruby::Camera camera{ Malachite::Vector3f{ worldSize / 2 * 16.0f, 90.0f, worldSize / 2 * 16.0f } };
 
