@@ -26,9 +26,19 @@ namespace Nebula {
 		
 		void createTextureBuffer(const Chunk& posX, const Chunk& negX, const Chunk& posY, const Chunk& negY, BlockManager* blockManager);
 
-		void render() {
+		void render(Ruby::BufferTexture& offsetBufferTexture, Ruby::VertexBufferObject& textureBufferVBO) {
 			renderable->model = Malachite::Matrix4f{ 1.0f };
 			renderable->model.translate(absolutePosition.x * 16.0f, 0.0f, absolutePosition.y * 16.0f);
+
+			Ruby::VertexAttributeObject::unbind();
+
+			textureBufferVBO.bind();
+			textureBufferVBO.setPartialData(blockInfo, 0);
+			textureBufferVBO.unbind();
+
+			offsetBufferTexture.bind();
+			offsetBufferTexture.setData(textureBufferVBO, GL_RGBA32UI);
+
 			Ruby::ShaderProgram::upload("offsetBuffer", 5, offsetBufferTexture);
 			renderable->setNumberToRender(blocksToRender);
 
@@ -51,6 +61,8 @@ namespace Nebula {
 		Nebula::ChunkRenderable* renderable;
 
 		unsigned int blocksToRender{ 0 };
+
+		std::vector<unsigned int> blockInfo{ };
 
 		Ruby::VertexBufferObject textureBufferVBO{ };
 		Ruby::BufferTexture offsetBufferTexture{ };

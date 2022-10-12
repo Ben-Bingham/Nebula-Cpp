@@ -13,7 +13,6 @@ namespace Nebula {
 			for (size_t y = 0; y < ySize; y++) {
 				for (size_t z = 0; z < zSize; z++) {
 					unsigned int val = (unsigned int)ceil(15.0f * cos(0.05f * (x + 16 * absolutePosition.x)) + 70.0f);
-
 					if (y == val) {
 						blocks[x][y][z] = grassBlock;
 					}
@@ -32,7 +31,6 @@ namespace Nebula {
 	}
 
 	void Chunk::createTextureBuffer(const Chunk& posXChunk, const Chunk& negXChunk, const Chunk& posYChunk, const Chunk& negYChunk, BlockManager* blockManager) { // Generates "Geometry"
-		std::vector<unsigned int> content{ };
 		unsigned int blocksToRend{ 0 };
 
 		Block* airBlock = blockManager->getBlock("BLOCK_AIR");
@@ -88,10 +86,10 @@ namespace Nebula {
 						}
 
 						if (posXBlock == airBlock || negXBlock == airBlock || posYBlock == airBlock || negYBlock == airBlock || posZBlock == airBlock || negZBlock == airBlock) {
-							content.push_back(Malachite::concatenate(block->textureIDs[0], block->textureIDs[1]));
-							content.push_back(Malachite::concatenate(block->textureIDs[2], block->textureIDs[3]));
-							content.push_back(Malachite::concatenate(block->textureIDs[4], block->textureIDs[5]));
-							content.push_back(Malachite::concatenate(Malachite::concatenate((unsigned char)x, (unsigned char)y), Malachite::concatenate((unsigned char)z, 0)));
+							blockInfo.push_back(Malachite::concatenate(block->textureIDs[0], block->textureIDs[1]));
+							blockInfo.push_back(Malachite::concatenate(block->textureIDs[2], block->textureIDs[3]));
+							blockInfo.push_back(Malachite::concatenate(block->textureIDs[4], block->textureIDs[5]));
+							blockInfo.push_back(Malachite::concatenate(Malachite::concatenate((unsigned char)x, (unsigned char)y), Malachite::concatenate((unsigned char)z, 0)));
 							blocksToRend++;
 						}
 					}
@@ -100,16 +98,6 @@ namespace Nebula {
 		}
 
 		blocksToRender = blocksToRend;
-
-		// "Geometry"
-		Ruby::VertexAttributeObject::unbind();
-
-		textureBufferVBO.bind();
-		textureBufferVBO.setData(content);
-		textureBufferVBO.unbind();
-
-		offsetBufferTexture.bind();
-		offsetBufferTexture.setData(textureBufferVBO, GL_RGBA32UI);
 	}
 
 	const unsigned int Chunk::xSize{ 16 };

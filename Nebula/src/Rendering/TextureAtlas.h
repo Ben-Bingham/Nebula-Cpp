@@ -46,19 +46,19 @@ namespace Nebula {
 				i++;
 			}
 
-			textureCordVBO.bind();
+			/*textureCordVBO.bind();
 			textureCordVBO.setData(content);
 			textureCordVBO.unbind();
 
 			textureCordBufferTexture.bind();
-			textureCordBufferTexture.setData(textureCordVBO, GL_RGB32F);
+			textureCordBufferTexture.setData(textureCordVBO, GL_RGB32F);*/
 		}
 
-		Ruby::BufferTexture textureCordBufferTexture{ };
+		//Ruby::BufferTexture textureCordBufferTexture{ };
 		unsigned int imagesPerSide;
 
 	private:
-		Ruby::VertexBufferObject textureCordVBO{ };
+		//Ruby::VertexBufferObject textureCordVBO{ };
 
 		Ruby::Texture createEmptyTexture(std::vector<Ruby::Image*> images) {
 			unsigned int size = images[0]->getWidth();

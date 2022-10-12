@@ -115,6 +115,10 @@ int main() {
 	
 	// TODO chunk manager
 	std::vector<Nebula::Chunk> chunks{};
+	Ruby::VertexBufferObject textureBufferVBO{ };
+	textureBufferVBO.bind();
+	textureBufferVBO.setNoData(65536 * 4, GL_DYNAMIC_DRAW);
+	Ruby::BufferTexture offsetBufferTexture{ };
 
 	Nebula::ChunkRenderable chunkRenderable{ atlasMaterial };
 
@@ -241,7 +245,7 @@ int main() {
 				Ruby::ShaderProgram::upload("cameraPosition", camera.position);
 
 				for (Nebula::Chunk& chunk : chunks) {
-					chunk.render();
+					chunk.render(offsetBufferTexture, textureBufferVBO);
 				}
 			}
 
