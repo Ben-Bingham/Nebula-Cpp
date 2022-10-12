@@ -25,7 +25,7 @@ namespace Nebula {
 
 		ImageManager() { }
 
-		unsigned int addImage(Ruby::Image& image, std::string iName) {
+		unsigned int addImage(Ruby::Image image, std::string iName) {
 			unsigned int id = getNextID();
 			images.push_back(ImageElement{ std::move(image), iName, id });
 			return id;

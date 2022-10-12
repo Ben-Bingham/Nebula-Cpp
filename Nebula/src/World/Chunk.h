@@ -48,7 +48,7 @@ namespace Nebula {
 		std::vector<std::vector<std::vector<Nebula::Block*>>> blocks;
 
 	private:
-		Nebula::ChunkRenderable* renderable/*{ atlasMaterial }*/; // TODO add static atlas material
+		Nebula::ChunkRenderable* renderable;
 
 		unsigned int blocksToRender{ 0 };
 

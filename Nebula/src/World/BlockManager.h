@@ -37,7 +37,7 @@ namespace Nebula {
 			return nullptr;
 		}
 
-		ImageManager imageManager;
+		ImageManager diffuseImageManager;
 
 	private:
 		std::vector<Block> blocks;

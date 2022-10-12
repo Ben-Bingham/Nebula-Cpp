@@ -64,7 +64,7 @@ namespace Nebula {
 			unsigned int size = images[0]->getWidth();
 			unsigned int imagesPerSide = (unsigned int)ceil(sqrt(images.size()));
 
-			return Texture{ GL_RGBA, imagesPerSide * size, imagesPerSide * size };
+			return Texture{ GL_RGBA, imagesPerSide * size, imagesPerSide * size, GL_CLAMP_TO_BORDER, GL_NEAREST, true };
 		}
 	};
 }

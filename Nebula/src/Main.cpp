@@ -4,6 +4,7 @@
 #include "Renderer.h"
 #include "World/BlockManager.h"
 #include "World/Chunk.h"
+#include "OpenGL objects/Texture.h"
 
 #include "Rendering/TextureAtlas.h"
 #include "Bit Manipulation/Concatination.h"
@@ -82,14 +83,15 @@ int main() {
 	// Game Setup
 	Nebula::BlockManager blockManager{};
 
-	unsigned short unknownImageIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\unknown.png" }, "IMAGE_UNKNOWN");
-	unsigned short airImageIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\air.png" }, "IMAGE_AIR");
-	unsigned short dirtImageIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\dirt.png" }, "IMAGE_DIRT");
+	Ruby::Image blackImage{ Malachite::Vector3f{ 0.0f }, 16, 16, 4 };
 
-	unsigned short grassTopIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\grass_top.png" }, "IMAGE_GRASS_TOP");
-	unsigned short planetCoreIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\planet_core.png" }, "IMAGE_PLANET_CORE");
-	unsigned short stoneIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\stone.png" }, "IMAGE_STONE");
-	unsigned short grassSideIndex = blockManager.imageManager.addImage(Ruby::Image{ "assets\\images\\textures\\grass_side.png" }, "IMAGE_GRASS_SIDE");
+	unsigned short unknownImageIndex = blockManager.diffuseImageManager.addImage(Ruby::Image{ "assets\\images\\textures\\unknown.png" }, "IMAGE_UNKNOWN");
+	unsigned short airImageIndex = blockManager.diffuseImageManager.addImage(Ruby::Image{ "assets\\images\\textures\\air.png" }, "IMAGE_AIR");
+	unsigned short dirtImageIndex = blockManager.diffuseImageManager.addImage(Ruby::Image{ "assets\\images\\textures\\dirt.png" }, "IMAGE_DIRT");
+	unsigned short grassTopIndex = blockManager.diffuseImageManager.addImage(Ruby::Image{ "assets\\images\\textures\\grass_top.png" }, "IMAGE_GRASS_TOP");
+	unsigned short planetCoreIndex = blockManager.diffuseImageManager.addImage(Ruby::Image{ "assets\\images\\textures\\planet_core.png" }, "IMAGE_PLANET_CORE");
+	unsigned short stoneIndex = blockManager.diffuseImageManager.addImage(Ruby::Image{ "assets\\images\\textures\\stone.png" }, "IMAGE_STONE");
+	unsigned short grassSideIndex = blockManager.diffuseImageManager.addImage(Ruby::Image{ "assets\\images\\textures\\grass_side.png" }, "IMAGE_GRASS_SIDE");
 
 	// texture order: PosX, NegX, PosY, NegY, PosZ, NegZ
 	blockManager.addBlock(Nebula::Block{ "BLOCK_AIR", std::array<unsigned short, 6>{ airImageIndex, airImageIndex, airImageIndex, airImageIndex, airImageIndex, airImageIndex }});
@@ -99,9 +101,10 @@ int main() {
 
 	blockManager.addBlock(Nebula::Block{ "BLOCK_GRASS", std::array<unsigned short, 6>{ grassSideIndex, grassSideIndex, grassTopIndex, dirtImageIndex, grassSideIndex, grassSideIndex } });
 
-	Nebula::TextureAtlas atlas{ blockManager.imageManager.getImages() };
+	Nebula::TextureAtlas diffuseAtlas{ blockManager.diffuseImageManager.getImages() };
+	Ruby::Texture specularTexture{ blackImage };
 
-	Ruby::PhongMaterial atlasMaterial{ atlas, atlas }; //TODO atlas for specular textures
+	Ruby::PhongMaterial atlasMaterial{ diffuseAtlas, specularTexture };
 
 	// Shader setup
 	Ruby::VertexShader phongInstanceVertexShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.vert" } };
@@ -179,7 +182,7 @@ int main() {
 	phongInstanceProgram.use();
 	Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
 	Ruby::ShaderProgram::upload("material", 0, atlasMaterial);
-	Ruby::ShaderProgram::upload("texturesPerSide", (int)atlas.imagesPerSide);
+	Ruby::ShaderProgram::upload("texturesPerSide", (int)diffuseAtlas.imagesPerSide);
 
 	renderer.init(window.getProjectionMatrix());
 
