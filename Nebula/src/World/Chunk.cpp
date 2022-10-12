@@ -6,17 +6,22 @@ namespace Nebula {
 	void Chunk::generateBlocks(BlockManager* blockManager) { // Generates what blocks are actually in the chunk
 		Block* airBlock = blockManager->getBlock("BLOCK_AIR");
 		Block* dirtBlock = blockManager->getBlock("BLOCK_DIRT");
-		Block* unknownBlock = blockManager->getBlock("BLOCK_GRASS");
-		Block* randomBlock = blockManager->getBlock("BLOCK_RANDOM");
+		Block* grassBlock = blockManager->getBlock("BLOCK_GRASS");
+		Block* stoneBlock = blockManager->getBlock("BLOCK_STONE");
 
 		for (size_t x = 0; x < xSize; x++) {
 			for (size_t y = 0; y < ySize; y++) {
 				for (size_t z = 0; z < zSize; z++) {
-					if (y < 80) {
+					unsigned int val = (unsigned int)ceil(15.0f * cos(0.05f * (x + 16 * absolutePosition.x)) + 70.0f);
+
+					if (y == val) {
+						blocks[x][y][z] = grassBlock;
+					}
+					else if ((val - 3) <= y && y < val) {
 						blocks[x][y][z] = dirtBlock;
 					}
-					else if (y == 80) {
-						blocks[x][y][z] = unknownBlock;
+					else if (y < val - 3) {
+						blocks[x][y][z] = stoneBlock;
 					}
 					else {
 						blocks[x][y][z] = airBlock;
@@ -24,8 +29,6 @@ namespace Nebula {
 				}
 			}
 		}
-
-		blocks[8][90][8] = randomBlock;
 	}
 
 	void Chunk::createTextureBuffer(const Chunk& posXChunk, const Chunk& negXChunk, const Chunk& posYChunk, const Chunk& negYChunk, BlockManager* blockManager) { // Generates "Geometry"

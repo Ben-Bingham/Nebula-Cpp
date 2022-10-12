@@ -9,7 +9,7 @@
 #include "Rendering/TextureAtlas.h"
 #include "Bit Manipulation/Concatination.h"
 
-const unsigned int worldSize{ 5 };
+const unsigned int worldSize{ 2 };
 
 Ruby::Camera camera{ Malachite::Vector3f{ worldSize / 2 * 16.0f, 90.0f, worldSize / 2 * 16.0f } };
 
@@ -98,7 +98,7 @@ int main() {
 	blockManager.addBlock(Nebula::Block{ "BLOCK_DIRT", std::array<unsigned short, 6>{ dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex, dirtImageIndex } });
 	blockManager.addBlock(Nebula::Block{ "BLOCK_UNKNOWN", std::array<unsigned short, 6>{ unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex, unknownImageIndex } });
 	blockManager.addBlock(Nebula::Block{ "BLOCK_RANDOM", std::array<unsigned short, 6>{ grassTopIndex, planetCoreIndex, stoneIndex, grassSideIndex, unknownImageIndex, dirtImageIndex } });
-
+	blockManager.addBlock(Nebula::Block{ "BLOCK_STONE", std::array<unsigned short, 6>{ stoneIndex, stoneIndex, stoneIndex, stoneIndex, stoneIndex, stoneIndex } });
 	blockManager.addBlock(Nebula::Block{ "BLOCK_GRASS", std::array<unsigned short, 6>{ grassSideIndex, grassSideIndex, grassTopIndex, dirtImageIndex, grassSideIndex, grassSideIndex } });
 
 	Nebula::TextureAtlas diffuseAtlas{ blockManager.diffuseImageManager.getImages() };
@@ -170,7 +170,6 @@ int main() {
 		chunk.createTextureBuffer(*posX, *negX, *posY, *negY, &blockManager);
 		i++;
 	}
-
 
 	Ruby::DirectionalLight dirLight{};
 	std::vector<Ruby::DirectionalLight*> directionalLights{};
