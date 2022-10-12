@@ -193,9 +193,9 @@ int main() {
 
 
 	// Celestial body playground
-	Nebula::CelestialBody sun{ 1.989f * pow(10.0f, 30), 696340.0f, 0.0f, Ruby::Colour{ 229,79,6 } };
+	Nebula::CelestialBody sun{ 1.989f * (Nebula::Kilogram)pow(10.0f, 30), 696340.0f, 0.0f, Ruby::Colour{ 229,79,6 } };
 
-	Nebula::CelestialBody earth{ 5.97f * pow(10.0f, 24), 6.37 * pow(10.0f, 6), 149320000, Ruby::Colour{19,26,45} };
+	Nebula::CelestialBody earth{ 5.97f * (Nebula::Kilogram)pow(10.0f, 24), 6.37f * (Nebula::Meter)pow(10.0f, 6), 149320000, Ruby::Colour{19,26,45} };
 	sun.addChild(earth);
 
 	Ruby::DirectionalLight dirLight{};

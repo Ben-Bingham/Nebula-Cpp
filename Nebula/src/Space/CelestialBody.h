@@ -5,7 +5,7 @@
 #include "Colour.h"
 
 namespace Nebula {
-	using Kilogram = float;
+	using Kilogram = float; //TODO add literals
 	using Meter = float;
 
 	class CelestialBody {
