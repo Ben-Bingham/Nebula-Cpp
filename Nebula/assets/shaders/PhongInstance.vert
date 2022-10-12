@@ -19,11 +19,11 @@ uniform int texturesPerSide;
 out vec3 test;
 
 void main() {
-	unsigned ivec4 instanceInfo = unsigned ivec4(texelFetch(offsetBuffer, gl_InstanceID).rgba);
+	uvec4 instanceInfo = uvec4(texelFetch(offsetBuffer, gl_InstanceID).rgba);
 
-	unsigned int pos = instanceInfo.a;
+	uint pos = instanceInfo.a;
 
-	unsigned ivec3 offset;
+	uvec3 offset;
 	offset.z = (pos >> 8) & 255u;
 	offset.y = (pos >> 16) & 255u;
 	offset.x = (pos >> 24) & 255u;
