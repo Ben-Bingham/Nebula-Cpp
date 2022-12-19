@@ -1,13 +1,16 @@
 #include <iostream>
 
+#include "Camera.h"
 #include "Window.h"
-#include "Renderer.h"
+#include "Renderers/Renderer.h"
 #include "World/BlockManager.h"
 #include "World/Chunk.h"
 #include "OpenGL objects/Texture.h"
 
 #include "Rendering/TextureAtlas.h"
 #include "Bit Manipulation/Concatination.h"
+
+#include "Materials/PhongMaterial.h"
 
 #include "Space/CelestialBody.h"
 
