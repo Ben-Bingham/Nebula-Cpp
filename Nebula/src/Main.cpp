@@ -72,7 +72,7 @@ void mouseScrollCallback(int xoffset, int yoffset, void* data) {
 
 int main() {
 	// Engine Setup
-	Ruby::Window window{ 640, 480, "Nebula", 3000.0f };
+	Ruby::Window window{ 640 * 2, 480 * 2, "Nebula", 3000.0f };
 	Ruby::Mouse* mouse = &window.ioManger.mouse;
 	Ruby::Keyboard* keyboard = &window.ioManger.keyboard;
 
