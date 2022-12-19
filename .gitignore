@@ -1,11 +1,22 @@
-# Annoying files
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
 .vs/
-
-# Build system
 build/
+*.hint
 
-# Visual Studio files
-**.sln
-**.vcxproj
-**.vcxproj.user
-**.vcxproj.filters
+UnitTests/assets/Unit Test Text File 1.txt
+UnitTests/assets/Unit Test Text File 2.txt
+UnitTests/assets/Unit Test Text File 3.txt
+
+Sandbox/assets/shaders/ruleSet*
+
+Dependencies/assimp/*.lib
+
+*.JadeModel
+
+**/*Procedural*
+
+dOxygen/
+DoxyFile

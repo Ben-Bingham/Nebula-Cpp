@@ -1,13 +1,16 @@
 #include <iostream>
 
+#include "Camera.h"
 #include "Window.h"
-#include "Renderer.h"
+#include "Renderers/Renderer.h"
 #include "World/BlockManager.h"
 #include "World/Chunk.h"
 #include "OpenGL objects/Texture.h"
 
 #include "Rendering/TextureAtlas.h"
 #include "Bit Manipulation/Concatination.h"
+
+#include "Materials/PhongMaterial.h"
 
 #include "Space/CelestialBody.h"
 
@@ -70,7 +73,8 @@ void mouseScrollCallback(int xoffset, int yoffset, void* data) {
 	}
 }
 
-int main() {
+int main() { //TODO instead of sending all 6 texture ids to the chunk per block send a single uniform that holds an array of indexs to a blocks whick than holds 6 indexes saying what textures the block has
+			// in the end should onlu send up one number per block in chunk and than also one big uniform that stores info on each block
 	// Engine Setup
 	Ruby::Window window{ 640 * 2, 480 * 2, "Nebula", 3000.0f };
 	Ruby::Mouse* mouse = &window.ioManger.mouse;
