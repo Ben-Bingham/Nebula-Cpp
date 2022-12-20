@@ -2,7 +2,7 @@
 
 #include <tuple>
 
-#include "Image.h"
+#include "Resources/Image.h"
 
 namespace Nebula {
 	//struct BlockTexture {

@@ -18,6 +18,4 @@ project "Nebula"
 		"src"
 	}
 
-	print "------------------------------ Nebula Using Gemstone ------------------------------"
-	useGemstone("../Dependencies/Gemstone")
-	print "------------------------------ Nebula Done Using Gemstone ------------------------------"
+	useGemstone("../Dependencies/Gemstone/")
