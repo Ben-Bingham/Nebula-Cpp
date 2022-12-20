@@ -76,7 +76,7 @@ void mouseScrollCallback(int xoffset, int yoffset, void* data) {
 int main() { //TODO instead of sending all 6 texture ids to the chunk per block send a single uniform that holds an array of indexs to a blocks whick than holds 6 indexes saying what textures the block has
 			// in the end should onlu send up one number per block in chunk and than also one big uniform that stores info on each block
 	// Engine Setup
-	Ruby::Window window{ 640, 480, "Nebula", 3000.0f };
+	Ruby::Window window{ 640 * 2, 480 * 2, "Nebula", 3000.0f };
 	Ruby::Mouse* mouse = &window.ioManger.mouse;
 	Ruby::Keyboard* keyboard = &window.ioManger.keyboard;
 
