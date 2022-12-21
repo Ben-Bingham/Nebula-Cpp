@@ -1,3 +1,4 @@
+gemstoneDirectory = "..\\\\Dependencies\\\\Gemstone"
 require "Dependencies/Gemstone/Gemstone/useWorkspace"
 
 workspace "Nebula"
