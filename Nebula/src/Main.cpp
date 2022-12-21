@@ -6,7 +6,7 @@
 #include "World/BlockManager.h"
 #include "World/Chunk.h"
 #include "OpenGL objects/Texture.h"
-
+#include "Renderable Objects/SkyBox.h"
 #include "Rendering/TextureAtlas.h"
 #include "Bit Manipulation/Concatination.h"
 
@@ -16,7 +16,8 @@
 
 const unsigned int worldSize{ 5 };
 
-Ruby::Camera camera{ Malachite::Vector3f{ worldSize / 2 * 16.0f, 90.0f, worldSize / 2 * 16.0f } };
+// Ruby::Camera camera{ Malachite::Vector3f{ worldSize / 2 * 16.0f, 90.0f, worldSize / 2 * 16.0f } };
+Ruby::Camera camera{ Malachite::Vector3f{ 0.0f, 0.0f, 5.0f } };
 
 struct FPSController {
 	bool firstMouse = true;
@@ -60,7 +61,7 @@ void mousePositionCallback(int xpos, int ypos, void* data) {
 	direction.y = sin(Malachite::degreesToRadians(controller->pitch));
 	direction.z = sin(Malachite::degreesToRadians(controller->yaw)) * cos(Malachite::degreesToRadians(controller->pitch));
 
-	camera.front = Malachite::normalize(direction);
+	camera.front = direction.normalize();
 	camera.updateCameraVectors();
 }
 
@@ -76,20 +77,20 @@ void mouseScrollCallback(int xoffset, int yoffset, void* data) {
 int main() { //TODO instead of sending all 6 texture ids to the chunk per block send a single uniform that holds an array of indexs to a blocks whick than holds 6 indexes saying what textures the block has
 			// in the end should onlu send up one number per block in chunk and than also one big uniform that stores info on each block
 	// Engine Setup
-	Ruby::Window window{ 640 * 2, 480 * 2, "Nebula", 3000.0f };
-	Ruby::Mouse* mouse = &window.ioManger.mouse;
-	Ruby::Keyboard* keyboard = &window.ioManger.keyboard;
+	Wavellite::Window window{ Wavellite::Window::WindowSize::HALF_SCREEN, "Nebula", 3000.0f };
+	Wavellite::Mouse& mouse = window.ioManger.getMouse();
+	Wavellite::Keyboard& keyboard = window.ioManger.getKeyboard();
 
-	mouse->addMousePositionCallback(mousePositionCallback, (void*)&fpsController);
-	mouse->addScrollCallback(mouseScrollCallback, (void*)&fpsController);
+	mouse.addMousePositionCallback(mousePositionCallback, (void*)&fpsController);
+	mouse.addScrollCallback(mouseScrollCallback, (void*)&fpsController);
 	window.disableCursor();
 
-	Ruby::Renderer renderer{ };
+	Ruby::Renderer renderer{ camera, window };
 
 	// Game Setup
 	Nebula::BlockManager blockManager{};
 
-	Ruby::Image blackImage{ Malachite::Vector3f{ 0.0f }, 16, 16, 4 };
+	auto blackImage = Celestite::createPtr<Ruby::Image>(Malachite::Vector3f{ 0.0f }, 16, 16 );
 
 	unsigned short unknownImageIndex = blockManager.diffuseImageManager.addImage(Ruby::Image{ "assets\\images\\textures\\unknown.png" }, "IMAGE_UNKNOWN");
 	unsigned short airImageIndex = blockManager.diffuseImageManager.addImage(Ruby::Image{ "assets\\images\\textures\\air.png" }, "IMAGE_AIR");
@@ -110,76 +111,76 @@ int main() { //TODO instead of sending all 6 texture ids to the chunk per block 
 	Nebula::TextureAtlas diffuseAtlas{ blockManager.diffuseImageManager.getImages() };
 	Ruby::Texture specularTexture{ blackImage };
 
-	Ruby::PhongMaterial atlasMaterial{ diffuseAtlas, specularTexture };
+	// Ruby::PhongMaterial atlasMaterial{ diffuseAtlas, specularTexture };
 
 	// Shader setup
 	Ruby::VertexShader phongInstanceVertexShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.vert" } };
 	Ruby::FragmentShader phongInstanceFragmentShader{ Ruby::TextFile{ "assets\\shaders\\PhongInstance.frag" } };
-	Ruby::ShaderProgram phongInstanceProgram{ phongInstanceVertexShader, phongInstanceFragmentShader, std::vector<Ruby::Attribute>{ 3, 3, 2 } };
+	Ruby::ShaderProgram phongInstanceProgram{ phongInstanceVertexShader, phongInstanceFragmentShader };
 
-	renderer.addShader(phongInstanceProgram);
+	// renderer.addShader(phongInstanceProgram);
 
 	// TODO chunk manager
-	std::vector<Nebula::Chunk> chunks{};
-	Ruby::VertexBufferObject textureBufferVBO{ };
-	textureBufferVBO.bind();
-	textureBufferVBO.setNoData(65536 * 4, GL_DYNAMIC_DRAW);
-	Ruby::BufferTexture offsetBufferTexture{ };
+	// std::vector<Nebula::Chunk> chunks{};
+	// Ruby::VertexBufferObject textureBufferVBO{ };
+	// textureBufferVBO.bind();
+	// textureBufferVBO.setNoData(65536 * 4, GL_DYNAMIC_DRAW);
+	// Ruby::BufferTexture offsetBufferTexture{ };
 
-	Nebula::ChunkRenderable chunkRenderable{ atlasMaterial };
+	// Nebula::ChunkRenderable chunkRenderable{ atlasMaterial };
 
-	for (unsigned int x = 0; x < worldSize; x++) {
-		for (unsigned int y = 0; y < worldSize; y++) {
-			chunks.push_back(Nebula::Chunk{ Malachite::Vector2i{(int)x, (int)y}, chunkRenderable });
-			chunks.back().generateBlocks(&blockManager);
-		}
-	}
-
-	Nebula::Chunk airChunk{ Malachite::Vector2i{0, 0}, chunkRenderable };
-
-	Nebula::Block* airBlock = blockManager.getBlock("BLOCK_AIR");
-
-	for (unsigned int x = 0; x < airChunk.blocks.size(); x++) {
-		for (unsigned int y = 0; y < airChunk.blocks[x].size(); y++) {
-			for (unsigned int z = 0; z < airChunk.blocks[x][y].size(); z++) {
-				airChunk.blocks[x][y][z] = airBlock;
-			}
-		}
-	}
+	// for (unsigned int x = 0; x < worldSize; x++) {
+	// 	for (unsigned int y = 0; y < worldSize; y++) {
+	// 		chunks.push_back(Nebula::Chunk{ Malachite::Vector2i{(int)x, (int)y}, chunkRenderable });
+	// 		chunks.back().generateBlocks(&blockManager);
+	// 	}
+	// }
+	//
+	// // Nebula::Chunk airChunk{ Malachite::Vector2i{0, 0}, chunkRenderable };
+	//
+	// Nebula::Block* airBlock = blockManager.getBlock("BLOCK_AIR");
+	//
+	// for (unsigned int x = 0; x < airChunk.blocks.size(); x++) {
+	// 	for (unsigned int y = 0; y < airChunk.blocks[x].size(); y++) {
+	// 		for (unsigned int z = 0; z < airChunk.blocks[x][y].size(); z++) {
+	// 			airChunk.blocks[x][y][z] = airBlock;
+	// 		}
+	// 	}
+	// }
 
 	unsigned int i{ 0 };
-	for (Nebula::Chunk& chunk : chunks) {
-		int x = i / worldSize;
-		int y = i % worldSize;
-
-		Nebula::Chunk* posX{ &airChunk };
-		Nebula::Chunk* negX{ &airChunk };
-		Nebula::Chunk* posY{ &airChunk };
-		Nebula::Chunk* negY{ &airChunk };
-
-		Malachite::Vector2i posXAbsCords{ x + 1, y };
-		Malachite::Vector2i negXAbsCords{ x - 1, y };
-		Malachite::Vector2i posYAbsCords{ x, y + 1 };
-		Malachite::Vector2i negYAbsCords{ x, y - 1 };
-
-		for (Nebula::Chunk& chunk : chunks) {
-			if (chunk.absolutePosition == posXAbsCords) {
-				posX = &chunk;
-			}
-			else if (chunk.absolutePosition == negXAbsCords) {
-				negX = &chunk;
-			}
-			else if (chunk.absolutePosition == posYAbsCords) {
-				posY = &chunk;
-			}
-			else if (chunk.absolutePosition == negYAbsCords) {
-				negY = &chunk;
-			}
-		}
-
-		chunk.createTextureBuffer(*posX, *negX, *posY, *negY, &blockManager);
-		i++;
-	}
+	// for (Nebula::Chunk& chunk : chunks) {
+	// 	int x = i / worldSize;
+	// 	int y = i % worldSize;
+	//
+	// 	// Nebula::Chunk* posX{ &airChunk };
+	// 	// Nebula::Chunk* negX{ &airChunk };
+	// 	// Nebula::Chunk* posY{ &airChunk };
+	// 	// Nebula::Chunk* negY{ &airChunk };
+	//
+	// 	Malachite::Vector2i posXAbsCords{ x + 1, y };
+	// 	Malachite::Vector2i negXAbsCords{ x - 1, y };
+	// 	Malachite::Vector2i posYAbsCords{ x, y + 1 };
+	// 	Malachite::Vector2i negYAbsCords{ x, y - 1 };
+	//
+	// 	// for (Nebula::Chunk& chunk : chunks) {
+	// 	// 	if (chunk.absolutePosition == posXAbsCords) {
+	// 	// 		posX = &chunk;
+	// 	// 	}
+	// 	// 	else if (chunk.absolutePosition == negXAbsCords) {
+	// 	// 		negX = &chunk;
+	// 	// 	}
+	// 	// 	else if (chunk.absolutePosition == posYAbsCords) {
+	// 	// 		posY = &chunk;
+	// 	// 	}
+	// 	// 	else if (chunk.absolutePosition == negYAbsCords) {
+	// 	// 		negY = &chunk;
+	// 	// 	}
+	// 	// }
+	// 	//
+	// 	// chunk.createTextureBuffer(*posX, *negX, *posY, *negY, &blockManager);
+	// 	// i++;
+	// }
 
 	// Skybox setup
 	std::vector<Ruby::Image> skyboxImages{
@@ -191,8 +192,14 @@ int main() { //TODO instead of sending all 6 texture ids to the chunk per block 
 		Ruby::Image{ "assets\\skybox\\back.jpg", false }
 	};
 
-	Ruby::Skybox skybox{ skyboxImages };
+	// Ruby::Skybox skybox{ skyboxImages };
 
+	auto phongMaterial = Celestite::createPtr<Ruby::PhongMaterial>(
+		Celestite::createPtr<Ruby::Texture>(Celestite::createPtr<Ruby::Image>("assets\\images\\textures\\dirt.png")),
+		Celestite::createPtr<Ruby::Texture>(Celestite::createPtr<Ruby::Image>("assets\\images\\textures\\dirt.png"))
+	);
+	auto cubeGeometry = Celestite::createPtr<Ruby::Mesh>(Ruby::Mesh::Shape::CUBE);
+	auto cube = Celestite::createPtr<Ruby::Renderable>(cubeGeometry, phongMaterial);
 
 
 
@@ -206,15 +213,17 @@ int main() { //TODO instead of sending all 6 texture ids to the chunk per block 
 	std::vector<Ruby::DirectionalLight*> directionalLights{};
 	directionalLights.push_back(&dirLight);
 
+	Ruby::PhongMaterial::directionalLights.push_back(&dirLight);
+
 	renderer.shaders.phongShader.use();
-	Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
+	// Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
 
 	phongInstanceProgram.use();
-	Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
-	Ruby::ShaderProgram::upload("material", 0, atlasMaterial);
-	Ruby::ShaderProgram::upload("texturesPerSide", (int)diffuseAtlas.imagesPerSide);
+	// Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
+	// Ruby::ShaderProgram::upload("material", 0, atlasMaterial);
+	// Ruby::ShaderProgram::upload("texturesPerSide", (int)diffuseAtlas.imagesPerSide);
 
-	renderer.init(window.getProjectionMatrix());
+	// renderer.init(window.getProjectionMatrix());
 
 	double previousTime = glfwGetTime();
 	unsigned long long frameCount{ 0 };
@@ -226,66 +235,79 @@ int main() { //TODO instead of sending all 6 texture ids to the chunk per block 
 	while (window.isOpen() /*&& frameCount < 100*/) {
 		window.pollEvents();
 
-		if (keyboard->KEY_W) {
+		if (keyboard.KEY_W) {
 			camera.position += camera.front * fpsController.speed;
 		}
 
-		if (keyboard->KEY_A) {
+		if (keyboard.KEY_A) {
 			camera.position -= camera.right * fpsController.speed;
 		}
 
-		if (keyboard->KEY_S) {
+		if (keyboard.KEY_S) {
 			camera.position -= camera.front * fpsController.speed;
 		}
 
-		if (keyboard->KEY_D) {
+		if (keyboard.KEY_D) {
 			camera.position += camera.right * fpsController.speed;
 		}
 
-		if (keyboard->KEY_SPACE) {
+		if (keyboard.KEY_SPACE) {
 			camera.position += Malachite::Vector3f{ 0.0f, 1.0f, 0.0f } * fpsController.speed;
 		}
 
-		if (keyboard->KEY_LEFT_SHIFT) {
+		if (keyboard.KEY_LEFT_SHIFT) {
 			camera.position -= Malachite::Vector3f{ 0.0f, 1.0f, 0.0f } * fpsController.speed;
 		}
 
-		if (keyboard->KEY_ESCAPE) {
+		if (keyboard.KEY_ESCAPE) {
 			window.close();
 		}
 
 		{ // Rendering
-			renderer.prep(camera.getViewMatrix());
+			renderer.beginFrame();
 
-			{ // Planet Rendering
-				renderer.phongRenderingPrep();
-
-				Ruby::ShaderProgram::upload("cameraPosition", camera.position);
-
-
-
-				renderer.phongRenderingEnd();
-			}
-
-			{ // Phong instance
-				phongInstanceProgram.use();
-
-				Ruby::ShaderProgram::upload("cameraPosition", camera.position);
-
-				for (Nebula::Chunk& chunk : chunks) {
-					chunk.render(offsetBufferTexture, textureBufferVBO);
+			for (int x = 0; x < 16; x++) {
+				for (int y = 0; y < 4; y++) {
+					for (int z = 0; z < 16; z++) {
+						cube->getModelMatrix().row4 = Malachite::Vector4f{ 0.0f, 0.0f, 0.0f, 1.0f };
+						cube->getModelMatrix().translate(x, y, z);
+						renderer.render(cube);
+					}
 				}
 			}
 
-			{ // Skybox
-				renderer.skyboxRenderingPrep();
+			// renderer.prep(camera.getViewMatrix());
 
-				renderer.skyboxRender(skybox);
+			// { // Planet Rendering
+			// 	renderer.phongRenderingPrep();
+			//
+			// 	Ruby::ShaderProgram::upload("cameraPosition", camera.position);
+			//
+			//
+			//
+			// 	renderer.phongRenderingEnd();
+			// }
+			//
+			// { // Phong instance
+			// 	phongInstanceProgram.use();
+			//
+			// 	Ruby::ShaderProgram::upload("cameraPosition", camera.position);
+			//
+			// 	for (Nebula::Chunk& chunk : chunks) {
+			// 		chunk.render(offsetBufferTexture, textureBufferVBO);
+			// 	}
+			// }
+			//
+			// { // Skybox
+			// 	renderer.skyboxRenderingPrep();
+			//
+			// 	renderer.skyboxRender(skybox);
+			//
+			// 	renderer.skyboxRenderingEnd();
+			// }
 
-				renderer.skyboxRenderingEnd();
-			}
-
-			renderer.end();
+			// renderer.end();
+			renderer.endFrame();
 		}
 
 		window.swapBuffers();

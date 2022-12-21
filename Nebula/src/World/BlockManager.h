@@ -11,14 +11,14 @@
 namespace Nebula {
 	class BlockManager {
 	public:
-		BlockManager() { }
+		BlockManager() = default;
 
-		void addBlock(Block& block) {
-			blocks.push_back(std::move(block));
+		void addBlock(const Block& block) {
+			m_Blocks.push_back(std::move(block));
 		}
 
 		Block* getBlock(const std::string& name) {
-			for (Block& block : blocks) {
+			for (Block& block : m_Blocks) {
 				if (block.internalName == name) {
 					return &block;
 				}
@@ -28,7 +28,7 @@ namespace Nebula {
 		}
 
 		Block* getBlock(unsigned int ID) {
-			for (Block& block : blocks) {
+			for (Block& block : m_Blocks) {
 				if (block.ID == ID) {
 					return &block;
 				}
@@ -40,6 +40,6 @@ namespace Nebula {
 		ImageManager diffuseImageManager;
 
 	private:
-		std::vector<Block> blocks;
+		std::vector<Block> m_Blocks;
 	};
 }

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Colour.h"
+#include "Utility/Colour.h"
 
 namespace Nebula {
 	using Kilogram = float; //TODO add literals

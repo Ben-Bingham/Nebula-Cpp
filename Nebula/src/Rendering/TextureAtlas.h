@@ -19,7 +19,7 @@ namespace Nebula {
 						break;
 					}
 
-					this->setSubData(x * size, y * size, *images[index]);
+					// this->setSubData(x * size, y * size, *images[index]);
 				}
 			}
 
@@ -64,7 +64,8 @@ namespace Nebula {
 			unsigned int size = images[0]->getWidth();
 			unsigned int imagesPerSide = (unsigned int)ceil(sqrt(images.size()));
 
-			return Texture{ GL_RGBA, imagesPerSide * size, imagesPerSide * size, GL_CLAMP_TO_BORDER, GL_NEAREST, true };
+			// return Texture{ GL_RGBA, imagesPerSide * size, imagesPerSide * size, GL_CLAMP_TO_BORDER, GL_NEAREST, true };
+			return Texture{Celestite::createPtr<Ruby::Image>("assets\\skybox\\bottom.jpg")};
 		}
 	};
 }
