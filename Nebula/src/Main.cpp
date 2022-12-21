@@ -266,11 +266,11 @@ int main() { //TODO instead of sending all 6 texture ids to the chunk per block 
 		{ // Rendering
 			renderer.beginFrame();
 
-			for (int x = 0; x < 16; x++) {
+			for (int x = 0; x < 4; x++) {
 				for (int y = 0; y < 4; y++) {
-					for (int z = 0; z < 16; z++) {
+					for (int z = 0; z < 4; z++) {
 						cube->getModelMatrix().row4 = Malachite::Vector4f{ 0.0f, 0.0f, 0.0f, 1.0f };
-						cube->getModelMatrix().translate(x, y, z);
+						cube->getModelMatrix().translate(x, y, z); //TODO is wrong use transform instead
 						renderer.render(cube);
 					}
 				}
