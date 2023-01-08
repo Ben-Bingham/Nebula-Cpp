@@ -183,22 +183,23 @@ int main() { //TODO instead of sending all 6 texture ids to the chunk per block 
 	// }
 
 	// Skybox setup
-	std::vector<Ruby::Image> skyboxImages{
-		Ruby::Image{ "assets\\skybox\\right.jpg", false },
-		Ruby::Image{ "assets\\skybox\\left.jpg", false },
-		Ruby::Image{ "assets\\skybox\\top.jpg", false },
-		Ruby::Image{ "assets\\skybox\\bottom.jpg", false },
-		Ruby::Image{ "assets\\skybox\\front.jpg", false },
-		Ruby::Image{ "assets\\skybox\\back.jpg", false }
-	};
+	auto cubeGeometry = Celestite::createPtr<Ruby::Mesh>(Ruby::Mesh::Shape::CUBE);
 
-	// Ruby::Skybox skybox{ skyboxImages };
+	Celestite::Ptr<Ruby::SkyBoxMaterial> skyBoxMat = Celestite::createPtr<Ruby::SkyBoxMaterial>(std::initializer_list<Celestite::Ptr<Ruby::Image>>{
+		Celestite::createPtr<Ruby::Image>("assets\\SkyBox\\right.jpg", false),
+			Celestite::createPtr<Ruby::Image>("assets\\SkyBox\\left.jpg", false),
+			Celestite::createPtr<Ruby::Image>("assets\\SkyBox\\top.jpg", false),
+			Celestite::createPtr<Ruby::Image>("assets\\SkyBox\\bottom.jpg", false),
+			Celestite::createPtr<Ruby::Image>("assets\\SkyBox\\front.jpg", false),
+			Celestite::createPtr<Ruby::Image>("assets\\SkyBox\\back.jpg", false)
+	});
+
+	auto skybox = Celestite::createPtr<Ruby::Renderable>(cubeGeometry, skyBoxMat);
 
 	auto phongMaterial = Celestite::createPtr<Ruby::PhongMaterial>(
 		Celestite::createPtr<Ruby::Texture>(Celestite::createPtr<Ruby::Image>("assets\\images\\textures\\dirt.png")),
 		Celestite::createPtr<Ruby::Texture>(Celestite::createPtr<Ruby::Image>("assets\\images\\textures\\dirt.png"))
 	);
-	auto cubeGeometry = Celestite::createPtr<Ruby::Mesh>(Ruby::Mesh::Shape::CUBE);
 	auto cube = Celestite::createPtr<Ruby::Renderable>(cubeGeometry, phongMaterial);
 
 
@@ -266,16 +267,16 @@ int main() { //TODO instead of sending all 6 texture ids to the chunk per block 
 		{ // Rendering
 			renderer.beginFrame();
 
-			for (int x = 0; x < 4; x++) {
-				for (int y = 0; y < 4; y++) {
-					for (int z = 0; z < 4; z++) {
-						cube->getModelMatrix().row4 = Malachite::Vector4f{ 0.0f, 0.0f, 0.0f, 1.0f };
-						cube->getModelMatrix().translate(x, y, z); //TODO is wrong use transform instead
-						renderer.render(cube);
-					}
-				}
-			}
-
+			// for (int x = 0; x < 4; x++) {
+			// 	for (int y = 0; y < 4; y++) {
+			// 		for (int z = 0; z < 4; z++) {
+			// 			cube->transform()->position() = Malachite::Vector3f{ 0.0f, 0.0f, 0.0f };
+			// 			cube->transform()->position() = Malachite::Vector3f{ (float)x, (float)y, (float)z };
+			// 			renderer.render(cube);
+			// 		}
+			// 	}
+			// }
+			renderer.render(cube);
 			// renderer.prep(camera.getViewMatrix());
 
 			// { // Planet Rendering
@@ -307,6 +308,8 @@ int main() { //TODO instead of sending all 6 texture ids to the chunk per block 
 			// }
 
 			// renderer.end();
+			renderer.render(skybox);
+
 			renderer.endFrame();
 		}
 
