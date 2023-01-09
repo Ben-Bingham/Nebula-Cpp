@@ -10,7 +10,11 @@
 #include "Rendering/TextureAtlas.h"
 #include "Bit Manipulation/Concatination.h"
 
+#include "ECS/ComponentManager.h"
+#include "ECS/GameObject.h"
+
 #include "Materials/PhongMaterial.h"
+#include "Timing.h"
 
 #include "Space/CelestialBody.h"
 
@@ -75,11 +79,13 @@ void mouseScrollCallback(int xoffset, int yoffset, void* data) {
 }
 
 int main() { //TODO instead of sending all 6 texture ids to the chunk per block send a single uniform that holds an array of indexs to a blocks whick than holds 6 indexes saying what textures the block has
-			// in the end should onlu send up one number per block in chunk and than also one big uniform that stores info on each block
-	// Engine Setup
+	// in the end should onlu send up one number per block in chunk and than also one big uniform that stores info on each block
+// Engine Setup
 	Wavellite::Window window{ Wavellite::Window::WindowSize::HALF_SCREEN, "Nebula", 3000.0f };
 	Wavellite::Mouse& mouse = window.ioManger.getMouse();
 	Wavellite::Keyboard& keyboard = window.ioManger.getKeyboard();
+
+	Wavellite::Time time;
 
 	mouse.addMousePositionCallback(mousePositionCallback, (void*)&fpsController);
 	mouse.addScrollCallback(mouseScrollCallback, (void*)&fpsController);
@@ -90,7 +96,7 @@ int main() { //TODO instead of sending all 6 texture ids to the chunk per block 
 	// Game Setup
 	Nebula::BlockManager blockManager{};
 
-	auto blackImage = Celestite::createPtr<Ruby::Image>(Malachite::Vector3f{ 0.0f }, 16, 16 );
+	auto blackImage = Celestite::createPtr<Ruby::Image>(Malachite::Vector3f{ 0.0f }, 16, 16);
 
 	unsigned short unknownImageIndex = blockManager.diffuseImageManager.addImage(Ruby::Image{ "assets\\images\\textures\\unknown.png" }, "IMAGE_UNKNOWN");
 	unsigned short airImageIndex = blockManager.diffuseImageManager.addImage(Ruby::Image{ "assets\\images\\textures\\air.png" }, "IMAGE_AIR");
@@ -199,27 +205,30 @@ int main() { //TODO instead of sending all 6 texture ids to the chunk per block 
 	auto phongMaterial = Celestite::createPtr<Ruby::PhongMaterial>(
 		Celestite::createPtr<Ruby::Texture>(Celestite::createPtr<Ruby::Image>("assets\\images\\textures\\dirt.png")),
 		Celestite::createPtr<Ruby::Texture>(Celestite::createPtr<Ruby::Image>("assets\\images\\textures\\dirt.png"))
-	);
+		);
 	auto cube = Celestite::createPtr<Ruby::Renderable>(cubeGeometry, phongMaterial);
 
 
 
 	// Celestial body playground
-	Nebula::CelestialBody sun{ 1.989f * (Nebula::Kilogram)pow(10.0f, 30), 696340.0f, 0.0f, Ruby::Colour{ 229,79,6 } };
-
-	Nebula::CelestialBody earth{ 5.97f * (Nebula::Kilogram)pow(10.0f, 24), 6.37f * (Nebula::Meter)pow(10.0f, 6), 149320000, Ruby::Colour{19,26,45} };
-	sun.addChild(earth);
+	// Nebula::CelestialBody sun{ 1.989f * (Nebula::Kilogram)pow(10.0f, 30), 696340.0f, 0.0f, Ruby::Colour{ 229,79,6 } };
+	//
+	// Nebula::CelestialBody earth{ 5.97f * (Nebula::Kilogram)pow(10.0f, 24), 6.37f * (Nebula::Meter)pow(10.0f, 6), 149320000, Ruby::Colour{19,26,45} };
+	// sun.addChild(earth);
 
 	Ruby::DirectionalLight dirLight{};
-	std::vector<Ruby::DirectionalLight*> directionalLights{};
-	directionalLights.push_back(&dirLight);
 
-	Ruby::PhongMaterial::directionalLights.push_back(&dirLight);
+	phongMaterial->directionalLights.push_back(&dirLight);
+	// std::vector<Ruby::DirectionalLight*> directionalLights{};
+	// directionalLights.push_back(&dirLight);
 
-	renderer.shaders.phongShader.use();
+	// Ruby::PhongMaterial::directionalLights.push_back(&dirLight);
+
+
+	// renderer.shaders.phongShader.use();
 	// Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
 
-	phongInstanceProgram.use();
+	// phongInstanceProgram.use();
 	// Ruby::ShaderProgram::upload("directionalLights", 2, directionalLights);
 	// Ruby::ShaderProgram::upload("material", 0, atlasMaterial);
 	// Ruby::ShaderProgram::upload("texturesPerSide", (int)diffuseAtlas.imagesPerSide);
@@ -267,28 +276,8 @@ int main() { //TODO instead of sending all 6 texture ids to the chunk per block 
 		{ // Rendering
 			renderer.beginFrame();
 
-			// for (int x = 0; x < 4; x++) {
-			// 	for (int y = 0; y < 4; y++) {
-			// 		for (int z = 0; z < 4; z++) {
-			// 			cube->transform()->position() = Malachite::Vector3f{ 0.0f, 0.0f, 0.0f };
-			// 			cube->transform()->position() = Malachite::Vector3f{ (float)x, (float)y, (float)z };
-			// 			renderer.render(cube);
-			// 		}
-			// 	}
-			// }
 			renderer.render(cube);
-			// renderer.prep(camera.getViewMatrix());
 
-			// { // Planet Rendering
-			// 	renderer.phongRenderingPrep();
-			//
-			// 	Ruby::ShaderProgram::upload("cameraPosition", camera.position);
-			//
-			//
-			//
-			// 	renderer.phongRenderingEnd();
-			// }
-			//
 			// { // Phong instance
 			// 	phongInstanceProgram.use();
 			//
@@ -298,19 +287,11 @@ int main() { //TODO instead of sending all 6 texture ids to the chunk per block 
 			// 		chunk.render(offsetBufferTexture, textureBufferVBO);
 			// 	}
 			// }
-			//
-			// { // Skybox
-			// 	renderer.skyboxRenderingPrep();
-			//
-			// 	renderer.skyboxRender(skybox);
-			//
-			// 	renderer.skyboxRenderingEnd();
-			// }
-
-			// renderer.end();
+			
 			renderer.render(skybox);
 
 			renderer.endFrame();
+			time.endFrame();
 		}
 
 		window.swapBuffers();

@@ -29,7 +29,7 @@ namespace Nebula {
 
 		Block* getBlock(unsigned int ID) {
 			for (Block& block : m_Blocks) {
-				if (block.ID == ID) {
+				if (block.id == ID) {
 					return &block;
 				}
 			}
