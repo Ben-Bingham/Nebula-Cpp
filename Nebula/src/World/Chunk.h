@@ -2,11 +2,44 @@
 #include <vector>
 
 #include "Vector.h"
-#include "Rendering/ChunkRenderable.h"
 #include "BlockManager.h"
 #include "Block.h"
 
 namespace Nebula {
+	using ImageBuffer = Ruby::BlankBuffer<ImageIndex>;
+
+	class Chunk { //TODO add iterators for looping through blocks
+	public:
+		Chunk();
+
+		static inline constexpr unsigned int xSize{ 16 };
+		static inline constexpr unsigned int ySize{ 256 };
+		static inline constexpr unsigned int zSize{ 16 };
+
+		inline std::vector<std::vector<BlockIndex>>& operator[](const size_t index) {
+#ifdef NEBULA_DEBUG
+			assert(index < xSize); // Invalid index
+#endif
+
+			return m_Blocks[index];
+		}
+
+		ImageBuffer buffer; //TODO maybe make private with a getter?
+
+	private:
+		std::vector<std::vector<std::vector<BlockIndex>>> m_Blocks;
+	};
+
+
+
+
+
+
+
+
+
+
+
 	// class Chunk {
 	// public:
 	// 	Chunk(Malachite::Vector2i absPos, ChunkRenderable& renderable)
@@ -68,3 +101,8 @@ namespace Nebula {
 	// 	Ruby::BufferTexture offsetBufferTexture{ };
 	// };
 }
+
+// namespace ShaderProgramUploads {
+// 	void upload(const std::string& variableName, unsigned int unit, const Nebula::BlankBuffer& buffer);
+// 	void upload(const std::string& variableName, const Nebula::BlankBuffer& buffer);
+// }

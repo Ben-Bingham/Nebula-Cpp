@@ -65,7 +65,7 @@ namespace Nebula {
 			unsigned int imagesPerSide = (unsigned int)ceil(sqrt(images.size()));
 
 			// return Texture{ GL_RGBA, imagesPerSide * size, imagesPerSide * size, GL_CLAMP_TO_BORDER, GL_NEAREST, true };
-			return Texture{Celestite::createPtr<Ruby::Image>("assets\\skybox\\bottom.jpg")};
+			return Texture{Celestite::CreatePtr<Ruby::Image>("assets\\skybox\\bottom.jpg")};
 		}
 	};
 }

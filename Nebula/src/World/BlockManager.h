@@ -6,7 +6,7 @@
 
 #include "Log.h"
 #include "Block.h"
-#include "Rendering/ImageManager.h"
+#include "Rendering/ImageRegister.h"
 
 namespace Nebula {
 	class BlockManager {
@@ -14,7 +14,7 @@ namespace Nebula {
 		BlockManager() = default;
 
 		void addBlock(const Block& block) {
-			m_Blocks.push_back(std::move(block));
+			m_Blocks.push_back(block);
 		}
 
 		Block* getBlock(const std::string& name) {
@@ -37,7 +37,7 @@ namespace Nebula {
 			return nullptr;
 		}
 
-		ImageManager diffuseImageManager;
+		ImageRegister diffuseImageManager;
 
 	private:
 		std::vector<Block> m_Blocks;

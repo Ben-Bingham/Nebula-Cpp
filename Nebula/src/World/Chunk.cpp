@@ -2,7 +2,30 @@
 #include "BlockManager.h"
 #include "Bit Manipulation/Concatination.h"
 
+#include "Shaders/ShaderProgram.h"
+
 namespace Nebula {
+	Chunk::Chunk() {
+		m_Blocks.resize(xSize);
+		for (auto& vec : m_Blocks) {
+			vec.resize(ySize);
+			for (auto& nestedVec : vec) {
+				nestedVec.resize(zSize);
+			}
+		}
+
+		constexpr size_t NUMBER_OF_BLOCKS = (size_t)Chunk::xSize * (size_t)Chunk::ySize * (size_t)Chunk::zSize;
+		constexpr size_t IMAGE_INDEX_SIZE = sizeof(ImageIndex);
+		constexpr size_t SIDES_PER_BLOCK = 6;
+
+		buffer.setNoData(NUMBER_OF_BLOCKS * SIDES_PER_BLOCK * IMAGE_INDEX_SIZE, GL_STREAM_DRAW);
+	}
+
+
+
+
+
+
 	// void Chunk::generateBlocks(BlockManager* blockManager) { // Generates what blocks are actually in the chunk
 	// 	Block* airBlock = blockManager->getBlock("BLOCK_AIR");
 	// 	Block* dirtBlock = blockManager->getBlock("BLOCK_DIRT");

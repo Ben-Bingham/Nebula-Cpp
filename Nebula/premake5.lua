@@ -9,6 +9,16 @@ project "Nebula"
 	targetdir ("%{wks.location}/build/bin/%{prj.name}")
 	objdir ("%{wks.location}/build/bin-int/%{prj.name}")
 
+	filter "configurations:Debug"
+		symbols "On"
+		defines "NEBULA_DEBUG"
+	filter {}
+	
+	filter "configurations:Release"
+		optimize "On"
+		defines "NEBULA_RELEASE"
+	filter {}
+
 	files {
 		"src/**.h",
 		"src/**.cpp"
