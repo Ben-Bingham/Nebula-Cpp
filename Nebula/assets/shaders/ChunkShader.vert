@@ -7,6 +7,7 @@ layout (location = 2) in vec2 inputTextureCords;
 uniform mat4 modelViewProjection;
 
 uniform usamplerBuffer blockPositions;
+uniform usamplerBuffer u_BlockData;
 
 out vec4 temp;
 
@@ -15,7 +16,7 @@ void main() {
 	
 	float r = offset.x / 16.0;
 	float g = offset.y / 256.0;
-	float b = offset.z / 16.0;
+	float b = offset.z / 16.0 + texelFetch(u_BlockData, 0).x;
 
 	temp = vec4(gl_InstanceID / (16 * 16 * 256), g, b, 1.0);
 

@@ -1,6 +1,3 @@
-gemstoneDirectory = "..\\\\Dependencies\\\\Gemstone"
-require "Dependencies/Gemstone/Gemstone/useWorkspace"
-
 workspace "Nebula"
 	configurations { "Debug", "Release" }
 	platforms "x64"
@@ -19,5 +16,6 @@ workspace "Nebula"
 	startproject "Nebula"
 
 	include "Nebula"
+	include "Dependencies/Gemstone/Gemstone"
+	include "Dependencies/Gemstone/vendor/ImGui"
 
-	useGemstoneWorkspace("Dependencies/Gemstone/")
