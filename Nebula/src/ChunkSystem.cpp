@@ -8,8 +8,10 @@
 #include "Entity Component System/ComponentView.h"
 #include "Math/Vector.h"
 
-#include "Rendering/Components/Material.h"
 #include "Rendering/Components/Mesh.h"
+#include "Rendering/Material/Material.h"
+#include "Rendering/Material/Materials/DefaultMaterial.h"
+#include "Rendering/Material/Materials/SimpleMaterial.h"
 
 #include "Utility/Transform.h"
 
@@ -108,10 +110,12 @@ namespace Nebula {
 	}
 
 	Gem::Entity ChunkSystem::CreateChunk(Gem::EntityManager& entityManager, const Gem::Vector2i& position) {
+		static auto mat = Gem::CreatePtr<Gem::DefaultMaterial>(Gem::Image{"assets\\images\\container.png"}, Gem::Image{"assets\\images\\container_specular.png"});
+
 		Gem::Entity chunk = entityManager.Create();
 		entityManager.Insert<Chunk>(chunk);
 		entityManager.Insert<Gem::Transform>(chunk, Gem::Vector3f{ (float)position.x, 0.0f, (float)position.y });
-		entityManager.Insert<Gem::Material>(chunk);
+		entityManager.Insert<Gem::Material>(chunk, mat);
 		entityManager.Insert<Gem::Mesh>(chunk, Gem::Cube{});
 
 		return chunk;
