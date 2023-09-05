@@ -111,6 +111,7 @@ namespace Nebula {
 
 	Gem::Entity ChunkSystem::CreateChunk(Gem::EntityManager& entityManager, const Gem::Vector2i& position) {
 		static auto mat = Gem::CreatePtr<Gem::DefaultMaterial>(Gem::Image{"assets\\images\\container.png"}, Gem::Image{"assets\\images\\container_specular.png"});
+		// static auto mat = Gem::CreatePtr<Gem::SimpleMaterial>(Gem::Colour::BLUE);
 
 		Gem::Entity chunk = entityManager.Create();
 		entityManager.Insert<Chunk>(chunk);

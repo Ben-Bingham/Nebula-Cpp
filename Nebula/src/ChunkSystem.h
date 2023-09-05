@@ -20,7 +20,7 @@ namespace Nebula {
 
 		void Step(Gem::EntityManager& entityManager, float dt) override;
 
-		int loadDistance{ 8 };
+		int loadDistance{ 3 };
 
 	private:
 		std::vector<Gem::Entity> m_Chunks;

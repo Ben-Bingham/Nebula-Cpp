@@ -28,5 +28,4 @@ project "Nebula"
 		"src"
 	}
 
-	print("Temp")
 	useGemstone("../Dependencies/Gemstone/")

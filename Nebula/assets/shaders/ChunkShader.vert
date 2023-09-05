@@ -14,11 +14,11 @@ out vec4 temp;
 void main() {
 	vec4 offset = texelFetch(blockPositions, gl_InstanceID);
 	
-	float r = offset.x / 16.0;
-	float g = offset.y / 256.0;
-	float b = offset.z / 16.0 + texelFetch(u_BlockData, 0).x;
+	//float r = offset.x / 16.0;
+	//float g = offset.y / 256.0;
+	//float b = offset.z / 16.0 + texelFetch(u_BlockData, 0).x;
 
-	temp = vec4(gl_InstanceID / (16 * 16 * 256), g, b, 1.0);
+	//temp = vec4(gl_InstanceID / (16 * 16 * 256), g, b, 1.0);
 
 	gl_Position = modelViewProjection * vec4(inputPositon + vec3(offset.xyz), 1.0);
 }

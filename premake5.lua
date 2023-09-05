@@ -20,4 +20,3 @@ workspace "Nebula"
 	include "Nebula"
 	include "Dependencies/Gemstone/Gemstone"
 	include "Dependencies/Gemstone/vendor/ImGui"
-
