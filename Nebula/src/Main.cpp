@@ -1,31 +1,14 @@
-// #include "PlanetLevel.h"
-// #include "Core/Game Flow/Application.h"
-//
-// using namespace Gem;
-//
-// int main() {
-// 	constexpr Application app{};
-//
-// 	app.Load(CreatePtr<Nebula::PlanetLevel>());
-// }
+#include "Core/Engine_New.h"
+#include "Core/Game.h"
 
-#include <iostream>
-#include "Entity Component System/EntityManager.h"
+ using namespace Gem;
 
-struct Pos {
-	int x, y;
-};
+ int main() {
+ 	Engine_New engine{};
 
-int main() {
-	using namespace Gem;
+    Game game{ engine };
 
-	EntityManager ecs{};
+    game.levelManager.AddLevel(CreatePtr<Level_New>());
 
-	Entity entity = ecs.Create();
-
-	size_t a = ComponentInfo<Pos>::id;
-
-	auto b = ecs.m_Pools[a];
-
-	std::cin.get();
-}
+    game.Run();
+ }
