@@ -7,8 +7,8 @@
 
 namespace Nebula {
 	void PlanetLevel::Load() {
-		m_Ecs.systems.push_back(Gem::CreatePtr<ChunkSystem>());
-		m_Ecs.systems.push_back(Gem::CreatePtr<Gem::FpsCameraSystem>());
+		//m_Ecs.systems.push_back(Gem::CreatePtr<ChunkSystem>());
+		//m_Ecs.systems.push_back(Gem::CreatePtr<Gem::FpsCameraSystem>());
 
 		Gem::Entity player = m_Ecs.entityManager.Create();
 		m_Ecs.entityManager.Insert<Player>(player);
