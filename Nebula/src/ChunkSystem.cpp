@@ -19,20 +19,20 @@ namespace Nebula {
 	void ChunkSystem::Step(Gem::EntityManager& entityManager, float dt) {
 		// Player setup
 		int i = 0;
-		for (auto [player, transform] : Gem::ComponentView<Player, Gem::Transform>{ entityManager }) { i++; }
+		//for (auto [player, transform] : Gem::ComponentView<Player, Gem::Transform>{ entityManager }) { i++; }
 		if (i != 1) { LOG("Invalid number of players", Gem::LogLevel::ERROR); return; }
 
-		const auto player = *Gem::ComponentView<Player, Gem::Transform>{ entityManager }.begin();
+		//const auto player = *Gem::ComponentView<Player, Gem::Transform>{ entityManager }.begin();
 
-		const std::vector<Gem::Vector2i> validChunks = CreateValidChunkPositionList(std::get<1>(player));
+		//const std::vector<Gem::Vector2i> validChunks = CreateValidChunkPositionList(std::get<1>(player));
 
-		DeleteUnnecessaryChunks(entityManager, validChunks);
-		CreateMissingChunks(entityManager, validChunks);
+		//DeleteUnnecessaryChunks(entityManager, validChunks);
+		//CreateMissingChunks(entityManager, validChunks);
 
-		for (auto [chunk, transform] : Gem::ComponentView<Chunk, Gem::Transform>{ entityManager }) {
-			// Submit chunks to rendering
-			    // TODO
-		}
+		//for (auto [chunk, transform] : Gem::ComponentView<Chunk, Gem::Transform>{ entityManager }) {
+		//	// Submit chunks to rendering
+		//	    // TODO
+		//}
 
 		ImGui::Begin("Chunk Properties");
 		ImGui::DragInt("Load Distance", &loadDistance, 1.0f, 0, 30);
@@ -58,15 +58,15 @@ namespace Nebula {
 	void ChunkSystem::DeleteUnnecessaryChunks(Gem::EntityManager& entityManager, const std::vector<Gem::Vector2i>& validChunks) {
 		auto it = m_Chunks.begin();
 		while (it != m_Chunks.end()) {
-			const auto transform = entityManager.GetComponent<Gem::Transform>(*it);
-			const auto simplifiedPos = Gem::Vector2i{ (int)std::floor(transform.position.x), (int)std::floor(transform.position.y) };
+			//const auto transform = entityManager.GetComponent<Gem::Transform>(*it);
+			//const auto simplifiedPos = Gem::Vector2i{ (int)std::floor(transform.position.x), (int)std::floor(transform.position.y) };
 			bool allowedToExist = false;
 
 			for (const auto& validChunk : validChunks) {
-				if (validChunk == simplifiedPos) {
+				/*if (validChunk == simplifiedPos) {
 					allowedToExist = true;
 					break;
-				}
+				}*/
 			}
 
 			if (!allowedToExist) {
@@ -87,13 +87,13 @@ namespace Nebula {
 		while (it != neededChunks.end()) {
 			bool alreadyHaveChunk = false;
 			for (const auto& chunk : m_Chunks) {
-				const auto transform = entityManager.GetComponent<Gem::Transform>(chunk);
-				const auto simplifiedPos = Gem::Vector2i{ (int)std::floor(transform.position.x), (int)std::floor(transform.position.z) };
+				//const auto transform = entityManager.GetComponent<Gem::Transform>(chunk);
+				//const auto simplifiedPos = Gem::Vector2i{ (int)std::floor(transform.position.x), (int)std::floor(transform.position.z) };
 
-				if (*it == simplifiedPos) {
-					alreadyHaveChunk = true;
-					break;
-				}
+				//if (*it == simplifiedPos) {
+				//	alreadyHaveChunk = true;
+				//	break;
+				//}
 			}
 
 			if (alreadyHaveChunk) {
@@ -114,19 +114,19 @@ namespace Nebula {
 		// static auto mat = Gem::CreatePtr<Gem::SimpleMaterial>(Gem::Colour::BLUE);
 
 		Gem::Entity chunk = entityManager.Create();
-		entityManager.Insert<Chunk>(chunk);
-		entityManager.Insert<Gem::Transform>(chunk, Gem::Vector3f{ (float)position.x, 0.0f, (float)position.y });
-		entityManager.Insert<Gem::Material>(chunk, mat);
-		entityManager.Insert<Gem::Mesh>(chunk, Gem::Cube{});
+		//entityManager.Insert<Chunk>(chunk);
+		//entityManager.Insert<Gem::Transform>(chunk, Gem::Vector3f{ (float)position.x, 0.0f, (float)position.y });
+		//entityManager.Insert<Gem::Material>(chunk, mat);
+		//entityManager.Insert<Gem::Mesh>(chunk, Gem::Cube{});
 
 		return chunk;
 	}
 
 	void ChunkSystem::DeleteChunk(Gem::EntityManager& entityManager, Gem::Entity chunk) {
-		entityManager.Extract<Gem::Mesh>(chunk);
-		entityManager.Extract<Gem::Material>(chunk);
-		entityManager.Extract<Gem::Transform>(chunk);
-		entityManager.Extract<Chunk>(chunk);
+		//entityManager.Extract<Gem::Mesh>(chunk);
+		//entityManager.Extract<Gem::Material>(chunk);
+		//entityManager.Extract<Gem::Transform>(chunk);
+		//entityManager.Extract<Chunk>(chunk);
 		entityManager.Kill(chunk);
 	}
 }
