@@ -1,7 +1,7 @@
 #include "PlanetLevel.h"
 #include "ChunkSystem.h"
 #include "Player.h"
-#include "Entity Component System/ComponentView.h"
+//#include "Entity Component System/ComponentView.h"
 #include "Rendering/Components/Camera.h"
 #include "Rendering/Systems/FpsCameraSystem.h"
 

@@ -5,7 +5,7 @@
 #include "imgui.h"
 #include "Player.h"
 
-#include "Entity Component System/ComponentView.h"
+//#include "Entity Component System/ComponentView.h"
 #include "Math/Vector.h"
 
 #include "Rendering/Components/Mesh.h"
