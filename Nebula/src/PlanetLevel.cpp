@@ -10,7 +10,7 @@ namespace Nebula {
 		//m_Ecs.systems.push_back(Gem::CreatePtr<ChunkSystem>());
 		//m_Ecs.systems.push_back(Gem::CreatePtr<Gem::FpsCameraSystem>());
 
-		Gem::Entity player = m_Ecs.entityManager.Create();
+		//Gem::Entity player = m_Ecs.entityManager.Create();
 		//m_Ecs.entityManager.Insert<Player>(player);
 		//m_Ecs.entityManager.Insert<Gem::Transform>(player);
 		//m_Ecs.entityManager.Insert<Gem::Camera>(player, Gem::Camera::CameraType::FPS);
